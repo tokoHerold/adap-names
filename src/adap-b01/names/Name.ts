@@ -20,7 +20,11 @@ export class Name {
 
     /** Expects that all Name components are properly masked */
     constructor(other: string[], delimiter?: string) {
-        throw new Error("needs implementation or deletion");
+        for (let i = 0; i < other.length; i++) {
+            this.components.push(other[i]);
+        }
+        if (delimiter != undefined)
+            this.delimiter = delimiter;
     }
 
     /**
@@ -40,33 +44,63 @@ export class Name {
     public asDataString(): string {
         throw new Error("needs implementation or deletion");
     }
+    
+    public asNameString(delimiter: string = this.delimiter): string {
+        return this.components.join(delimiter);
+    }
 
     public getComponent(i: number): string {
+<<<<<<< HEAD
         throw new Error("needs implementation or deletion");
+=======
+        return this.components[i];
+>>>>>>> 3f1cdad (Add basic functionality to Names.ts)
     }
 
     /** Expects that new Name component c is properly masked */
     public setComponent(i: number, c: string): void {
+<<<<<<< HEAD
         throw new Error("needs implementation or deletion");
     }
 
      /** Returns number of components in Name instance */
      public getNoComponents(): number {
         throw new Error("needs implementation or deletion");
+=======
+        this.components[i] = c;
+    }
+
+    public getNoComponents(): number {
+        return this.components.length;
+>>>>>>> 3f1cdad (Add basic functionality to Names.ts)
     }
 
     /** Expects that new Name component c is properly masked */
     public insert(i: number, c: string): void {
+<<<<<<< HEAD
         throw new Error("needs implementation or deletion");
+=======
+        this.components.splice(i, 0, c);
+>>>>>>> 3f1cdad (Add basic functionality to Names.ts)
     }
 
     /** Expects that new Name component c is properly masked */
     public append(c: string): void {
+<<<<<<< HEAD
         throw new Error("needs implementation or deletion");
     }
 
     public remove(i: number): void {
         throw new Error("needs implementation or deletion");
+=======
+        this.components.push(c);
+    }
+
+    public remove(i: number): void {
+        if (0 >= i && i < this.components.length) {
+            this.components.splice(i, 1);
+        }
+>>>>>>> 3f1cdad (Add basic functionality to Names.ts)
     }
 
 }
