@@ -19,6 +19,7 @@ export class Name {
     private components: string[] = [];
 
     /** Expects that all Name components are properly masked */
+    /** @methodtype initialization-method */
     constructor(other: string[], delimiter?: string) {
         for (let i = 0; i < other.length; i++) {
             this.components.push(other[i]);
@@ -84,14 +85,14 @@ export class Name {
         this.components[i] = c;
     }
 
-
+    /** @methodtype get-method */
     public getNoComponents(): number {
         return this.components.length;
 >>>>>>> 3f1cdad (Add basic functionality to Names.ts)
     }
 
     /** Expects that new Name component c is properly masked */
-
+    /** @methodtype command-method */
     public insert(i: number, c: string): void {
 <<<<<<< HEAD
         throw new Error("needs implementation or deletion");
@@ -101,6 +102,7 @@ export class Name {
     }
 
     /** Expects that new Name component c is properly masked */
+    /** @methodtype command-method */
     public append(c: string): void {
 <<<<<<< HEAD
         throw new Error("needs implementation or deletion");
@@ -112,11 +114,16 @@ export class Name {
         this.components.push(c);
     }
 
+    /** @methodtype command-method */
     public remove(i: number): void {
         if (0 >= i && i < this.components.length) {
             this.components.splice(i, 1);
         }
 >>>>>>> 3f1cdad (Add basic functionality to Names.ts)
+    }
+
+    protected replaceAll(str : string, searchValue : string, replaceValue : string) : string {
+        return str.split(searchValue).join(replaceValue);
     }
 
 }
