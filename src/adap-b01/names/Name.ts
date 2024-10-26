@@ -122,6 +122,10 @@ export class Name {
 >>>>>>> 3f1cdad (Add basic functionality to Names.ts)
     }
 
+    /** Helper method 
+     * tsconfig.json has the target JavaScript version set to 2016 (which is more than 8 years old btw),
+     * in which "string.replaceAll" does not exist yet.
+     */
     protected replaceAll(str : string, searchValue : string, replaceValue : string) : string {
         return str.split(searchValue).join(replaceValue);
     }
