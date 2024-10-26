@@ -14,6 +14,7 @@ export class Name {
             this.delimiter = delimiter;
     }
 
+    /** Returns human-readable representation of Name instance */
     public asNameString(delimiter: string = this.delimiter): string {
         return this.components.join(delimiter);
     }
