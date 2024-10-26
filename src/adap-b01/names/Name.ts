@@ -6,6 +6,7 @@ export class Name {
     private components: string[] = [];
     private delimiter: string = this.DEFAULT_DELIMITER;
 
+    /** @methodtype initialization-method */
     constructor(other: string[], delimiter?: string) {
         for (let i = 0; i < other.length; i++) {
             this.components.push(other[i]);
@@ -21,9 +22,9 @@ export class Name {
         // Replace special occurances:
         this.components.forEach((component) => {
             // escape characters inside components
-            component = component.replaceAll(this.ESCAPE_CHARACTER, this.ESCAPE_CHARACTER + this.ESCAPE_CHARACTER);
+            component = this.replaceAll(component, this.ESCAPE_CHARACTER, this.ESCAPE_CHARACTER + this.ESCAPE_CHARACTER);
             // delimiters inside components
-            component = component.replaceAll(delimiter, this.ESCAPE_CHARACTER + delimiter);
+            component = this.replaceAll(component, delimiter, this.ESCAPE_CHARACTER + delimiter);
             human_readable.push(component)
         });
         return human_readable.join(delimiter);
@@ -39,24 +40,30 @@ export class Name {
         this.components[i] = c;
     }
 
-
+    /** @methodtype get-method */
     public getNoComponents(): number {
         return this.components.length;
     }
 
-
+    /** @methodtype command-method */
     public insert(i: number, c: string): void {
         this.components.splice(i, 0, c);
     }
 
+    /** @methodtype command-method */
     public append(c: string): void {
         this.components.push(c);
     }
 
+    /** @methodtype command-method */
     public remove(i: number): void {
         if (0 >= i && i < this.components.length) {
             this.components.splice(i, 1);
         }
+    }
+
+    protected replaceAll(str : string, searchValue : string, replaceValue : string) : string {
+        return str.split(searchValue).join(replaceValue);
     }
 
 }
