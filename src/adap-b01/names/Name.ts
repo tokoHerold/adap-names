@@ -45,10 +45,23 @@ export class Name {
         throw new Error("needs implementation or deletion");
     }
     
+
+    /** Returns human-readable representation of Name instance
+    /** @methodtype conversion-method */
     public asNameString(delimiter: string = this.delimiter): string {
-        return this.components.join(delimiter);
+        let human_readable: string[] = [];
+        // Replace special occurances:
+        this.components.forEach((component) => {
+            // escape characters inside components
+            component = component.replaceAll(ESCAPE_CHARACTER, ESCAPE_CHARACTER + ESCAPE_CHARACTER);
+            // delimiters inside components
+            component = component.replaceAll(delimiter, ESCAPE_CHARACTER + delimiter);
+            human_readable.push(component)
+        });
+        return human_readable.join(delimiter);
     }
 
+    /**  @methodtype get-method */
     public getComponent(i: number): string {
 <<<<<<< HEAD
         throw new Error("needs implementation or deletion");
@@ -58,6 +71,7 @@ export class Name {
     }
 
     /** Expects that new Name component c is properly masked */
+    /** @methodtype set-method */
     public setComponent(i: number, c: string): void {
 <<<<<<< HEAD
         throw new Error("needs implementation or deletion");
@@ -70,12 +84,14 @@ export class Name {
         this.components[i] = c;
     }
 
+
     public getNoComponents(): number {
         return this.components.length;
 >>>>>>> 3f1cdad (Add basic functionality to Names.ts)
     }
 
     /** Expects that new Name component c is properly masked */
+
     public insert(i: number, c: string): void {
 <<<<<<< HEAD
         throw new Error("needs implementation or deletion");
