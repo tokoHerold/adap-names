@@ -24,7 +24,7 @@ export class Name {
         for (let i = 0; i < other.length; i++) {
             this.components.push(other[i]);
         }
-        if (delimiter != undefined)
+        if (delimiter !== undefined)
             this.delimiter = delimiter;
     }
 
@@ -49,6 +49,8 @@ export class Name {
 
     /** Returns human-readable representation of Name instance
     /** @methodtype conversion-method */
+    /** Returns human-readable representation of Name instance */
+    // @methodtype conversion-method
     public asNameString(delimiter: string = this.delimiter): string {
         let human_readable: string[] = [];
         // Replace special occurances:
@@ -62,64 +64,39 @@ export class Name {
         return human_readable.join(delimiter);
     }
 
-    /**  @methodtype get-method */
+    //  @methodtype get-method
     public getComponent(i: number): string {
-<<<<<<< HEAD
-        throw new Error("needs implementation or deletion");
-=======
         return this.components[i];
->>>>>>> 3f1cdad (Add basic functionality to Names.ts)
     }
 
     /** Expects that new Name component c is properly masked */
     /** @methodtype set-method */
     public setComponent(i: number, c: string): void {
-<<<<<<< HEAD
-        throw new Error("needs implementation or deletion");
-    }
-
-     /** Returns number of components in Name instance */
-     public getNoComponents(): number {
-        throw new Error("needs implementation or deletion");
-=======
         this.components[i] = c;
     }
 
-    /** @methodtype get-method */
+    // @methodtype get-method
     public getNoComponents(): number {
         return this.components.length;
->>>>>>> 3f1cdad (Add basic functionality to Names.ts)
     }
 
     /** Expects that new Name component c is properly masked */
     /** @methodtype command-method */
     public insert(i: number, c: string): void {
-<<<<<<< HEAD
-        throw new Error("needs implementation or deletion");
-=======
         this.components.splice(i, 0, c);
->>>>>>> 3f1cdad (Add basic functionality to Names.ts)
     }
 
     /** Expects that new Name component c is properly masked */
     /** @methodtype command-method */
     public append(c: string): void {
-<<<<<<< HEAD
-        throw new Error("needs implementation or deletion");
-    }
-
-    public remove(i: number): void {
-        throw new Error("needs implementation or deletion");
-=======
         this.components.push(c);
     }
 
-    /** @methodtype command-method */
+    // @methodtype command-method
     public remove(i: number): void {
-        if (0 >= i && i < this.components.length) {
+        if (i >= 0 && i < this.components.length) {
             this.components.splice(i, 1);
         }
->>>>>>> 3f1cdad (Add basic functionality to Names.ts)
     }
 
     /** Helper method 
