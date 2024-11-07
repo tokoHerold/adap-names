@@ -3,6 +3,7 @@ import { describe, it, expect } from "vitest";
 import { Name } from "../../../src/adap-b02/names/Name";
 import { StringName } from "../../../src/adap-b02/names/StringName";
 import { StringArrayName } from "../../../src/adap-b02/names/StringArrayName";
+import { Name } from "../../adap-b01/names/Name";
 
 describe("Basic StringName function tests", () => {
   it("test insert", () => {
@@ -55,5 +56,48 @@ describe("Escape character extravaganza", () => {
     expect(n.asString()).toBe("oss.cs.fau.de");
     n.append("people");
     expect(n.asString()).toBe("oss.cs.fau.de#people");
+  });
+});
+
+describe("StringArrayName specific functions test", () => {
+
+  function testInputs(fn : Function) : void {
+    // Test standard inputs
+    expect(fn("test")).toBe(true);
+    expect(fn("")).toBe(true);
+
+    // Test incorrectly formatted inputs
+    expect(fn("fau.de")).toBe(false);
+    expect(fn("fau\\..de")).toBe(false);
+    expect(fn("fau\\de")).toBe(false);
+
+    // Test correctly masked inputs
+    expect(fn("fau\\.de")).toBe(true);
+    expect(fn("fau\\\\de")).toBe(true);
+
+    // Edge cases
+    expect(fn("\\.")).toBe(true);
+    expect(fn("\\\\")).toBe(true);
+
+    expect(fn(".")).toBe(false);
+    expect(fn("fau.")).toBe(false);
+    expect(fn("fau\\.")).toBe(true);
+    expect(fn(".fau")).toBe(false);
+    expect(fn("\\.fau")).toBe(true);
+
+    expect(fn("\\")).toBe(false);
+    expect(fn("fau\\")).toBe(false);
+    expect(fn("fau\\\\")).toBe(true);
+    expect(fn("\\fau")).toBe(false);
+    expect(fn("\\\\fau")).toBe(true);
+    expect(fn("\\.\\")).toBe(false);
+    expect(fn("\\..")).toBe(false);
+    expect(fn(".\\.")).toBe(false);
+  }
+
+  it("Test valid and invalid user inputs", () => {
+    let n : Name = new StringArrayName([]);
+    let validate = Reflect.get(n, "isValid");
+    testInputs(validate);
   });
 });

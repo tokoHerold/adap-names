@@ -6,7 +6,10 @@ export class StringArrayName implements Name {
     protected delimiter: string = DEFAULT_DELIMITER;
 
     constructor(other: string[], delimiter?: string) {
-        throw new Error("needs implementation");
+        if (delimiter !== undefined) {
+            this.delimiter = delimiter;
+        }
+
     }
 
     public asString(delimiter: string = this.delimiter): string {
@@ -51,6 +54,15 @@ export class StringArrayName implements Name {
 
     public concat(other: Name): void {
         throw new Error("needs implementation");
+    }
+
+    /* Helper method 
+     * Checks whether a given string is correctly escaped.
+     * Returns `true` on success, false otherwise.
+     */
+    protected isValid(input : string) : boolean {
+        // TODO: implement
+        return true;
     }
 
 }
