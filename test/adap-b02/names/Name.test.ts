@@ -99,14 +99,6 @@ describe("Extra-Tests", () => {
     // asDataString
     expect(nString.asDataString()).toBe("oss.cs.fau.de");
     expect(nArray.asDataString()).toBe("oss.cs.fau.de");
-
-    // asDataString with delimiter o
-    expect(nString.asDataString(), "o").toBe("\\ossocsofauode");
-    expect(nArray.asDataString(), "o").toBe("\\oss.cs.fau.de");
-
-    // asDataString with delimiter s
-    expect(nString.asDataString(), "s").toBe("o\\s\\ssc\\ssfausde");
-    expect(nArray.asDataString(), "s").toBe("o\\s\\ssc\\ssfausde");
     
     // isEmpty
     expect(nString.isEmpty()).toBe(false);
@@ -170,10 +162,10 @@ describe("Extra-Tests", () => {
     // append
     nString.append("coggers");
     nArray.append("coggers");
-    expect(nString.getNoComponents()).toBe(7);
+    expect(nString.getNoComponents()).toBe(8);
     expect(nString.getComponent(7)).toBe("coggers");
     expect(nString.asString()).toBe("yep.oss.c.s.yeppers.fau.de.yep.coggers");
-    expect(nArray.getNoComponents()).toBe(7);
+    expect(nArray.getNoComponents()).toBe(8);
     expect(nArray.getComponent(7)).toBe("coggers");
     expect(nArray.asString()).toBe("yep.oss.c.s.yeppers.fau.de.yep.coggers");
 
@@ -188,19 +180,32 @@ describe("Extra-Tests", () => {
     nArray.remove(2);
     expect(nString.getNoComponents()).toBe(4);
     expect(nArray.getNoComponents()).toBe(4);
+    expect(nString.asDataString()).toBe("oss.c\\.s.fau.de");
+    expect(nArray.asDataString()).toBe("oss.c\\.s.fau.de");
+    nString.setComponent(1, "cs");
+    nArray.setComponent(1, "cs");
     expect(nString.asDataString()).toBe("oss.cs.fau.de");
     expect(nArray.asDataString()).toBe("oss.cs.fau.de");
   });
 
   it("funny delimiter magic", () => {
     let nArray : Name = new StringArrayName(["o\\s\\s", "c\\s", "fau", "de"], "s");
-    let nString : Name = new StringName(nArray.asDataString(), "s");
+    let nString : Name = new StringName(nArray.asDataString().replaceAll(".", "s"), "s");
     expect(nString.getComponent(0)).toBe("o\\s\\s");
     expect(nArray.asString()).toBe("ossscssfausde");
     expect(nString.asString()).toBe("ossscssfausde");
     expect(nString.getNoComponents()).toBe(4);
-    expect(nArray.asDataString()).toBe("o\\s\\ssc\\ssfausde");
-    expect(nString.asDataString()).toBe("o\\s\\ssc\\ssfausde");
+    expect(nArray.asDataString()).toBe("o\\s\\s.c\\s.fau.de");
+    expect(nString.asDataString()).toBe("o\\s\\s.c\\s.fau.de");
+  });
+
+  it("unfunny delimiter magic", () => {
+    let nArray : Name = new StringArrayName(["o\\s\\s", "c\\s", "fau", "de"], "s");
+    let nString : Name = new StringName("o\\s\\ssc\\ssfausde", "s");
+    expect(nArray.asDataString()).toBe("o\\s\\s.c\\s.fau.de");
+    expect(nString.asDataString()).toBe("o\\s\\s.c\\s.fau.de");
+    expect(nArray.asString(".")).toBe("oss.cs.fau.de");
+    expect(nString.asString(".")).toBe("oss.cs.fau.de");
   });
 
   it("Emtpy:", () => {
@@ -217,7 +222,7 @@ describe("Extra-Tests", () => {
   });
 
   it("Escape-Characters", () => {
-    let nString : Name = new StringName("oss\\\\|fa\\\\u|de");
+    let nString : Name = new StringName("oss\\\\.fa\\\\u.de");
     let nArray : Name = new StringArrayName(["oss\\\\", "fa\\\\u", "de"]);
 
     expect(nString.asString("|")).toBe("oss\\|fa\\u|de");
@@ -230,7 +235,7 @@ describe("Extra-Tests", () => {
 
   it("Escaped Delimiters", () => {
     let nString : Name = new StringName("oss\\..fa\\.u.de");
-    let nArray : Name = new StringArrayName(["oss\\.", "fa\\.", "de"]);
+    let nArray : Name = new StringArrayName(["oss\\.", "fa\\.u", "de"]);
 
     expect(nString.asString()).toBe("oss..fa.u.de");
     expect(nArray.asString()).toBe("oss..fa.u.de");
@@ -252,7 +257,23 @@ describe("Extra-Tests", () => {
     expect(nString.getNoComponents()).toBe(1);
     expect(nArray.getNoComponents()).toBe(1);
 
+    nString = new StringName("oss.cs.")
+    nArray = new StringArrayName(["oss", "cs", ""])
+    expect(nString.asString()).toBe("oss.cs.");
+    expect(nArray.asString()).toBe("oss.cs.");
+    expect(nString.getNoComponents()).toBe(3);
+    expect(nArray.getNoComponents()).toBe(3);
+
+    nString = new StringName(".oss..cs.")
+    nArray = new StringArrayName(["", "oss", "" ,"cs", ""])
+    expect(nString.asString()).toBe(".oss..cs.");
+    expect(nArray.asString()).toBe(".oss..cs.");
+    expect(nString.getNoComponents()).toBe(5);
+    expect(nArray.getNoComponents()).toBe(5);
+
     testDataString("\\.");
     testDataString("\\\\");
+    testDataString("oss.cs.");
+    testDataString(".oss..cs.");
   });
 });

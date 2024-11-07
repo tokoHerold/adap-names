@@ -7,7 +7,7 @@ export class StringArrayName implements Name {
     protected components: string[] = [];
 
     constructor(other: string[], delimiter?: string) {
-        if (other.length === 0) throw new Error("Emtpy string array not allowed!")
+        if (other.length === 0) throw new Error("Emtpy names are not permitted!")
         other.forEach(element => {
             this.components.push(element);
         });
@@ -18,8 +18,8 @@ export class StringArrayName implements Name {
 
     public asString(delimiter: string = this.delimiter): string {
         return this.components
-        .map(c => c.replaceAll("\\\\", "\\")) // Replace escape characters
-        .map(c => c.replaceAll("\\" + delimiter, delimiter)) // Replace control characters
+        .map(c => c.replaceAll(ESCAPE_CHARACTER + ESCAPE_CHARACTER, ESCAPE_CHARACTER)) // Replace escape characters
+        .map(c => c.replaceAll(ESCAPE_CHARACTER + this.delimiter, this.delimiter)) // Replace control characters
         .join(delimiter);
     }
 
@@ -51,6 +51,8 @@ export class StringArrayName implements Name {
     public insert(i: number, c: string): void {
         if (i >= 0 && i < this.components.length)
             this.components.splice(i, 0, c);
+        else if (i === this.components.length)
+            this.append(c);
     }
 
     public append(c: string): void {
