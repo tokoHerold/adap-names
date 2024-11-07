@@ -17,11 +17,14 @@ export class StringArrayName implements Name {
     }
 
     public asString(delimiter: string = this.delimiter): string {
-        throw new Error("needs implementation or deletion");
+        return this.components
+        .map(c => c.replaceAll("\\\\", "\\")) // Replace escape characters
+        .map(c => c.replaceAll("\\" + delimiter, delimiter)) // Replace control characters
+        .join(delimiter);
     }
 
     public asDataString(): string {
-        throw new Error("needs implementation or deletion");
+        return this.components.join(DEFAULT_DELIMITER);
     }
 
     public isEmpty(): boolean {
