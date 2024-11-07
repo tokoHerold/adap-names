@@ -217,24 +217,24 @@ describe("Extra-Tests", () => {
   });
 
   it("Escape-Characters", () => {
-    let nString : Name = new StringName("oss\\\\|fa\\\\u|de", "|");
-    let nArray : Name = new StringArrayName(["oss\\\\", "fa\\\\u", "de"], "|");
+    let nString : Name = new StringName("oss\\\\|fa\\\\u|de");
+    let nArray : Name = new StringArrayName(["oss\\\\", "fa\\\\u", "de"]);
 
-    expect(nString.asString()).toBe("oss\\|fa\\u|de");
-    expect(nArray.asString()).toBe("oss\\|fa\\u|de");
+    expect(nString.asString("|")).toBe("oss\\|fa\\u|de");
+    expect(nArray.asString("|")).toBe("oss\\|fa\\u|de");
     expect(nString.getNoComponents()).toBe(3);
     expect(nArray.getNoComponents()).toBe(3);
 
-    testDataString("oss\\\\|fa\\\\u|de", "|");
+    testDataString("oss\\\\.fa\\\\u.de");
   });
 
   it("Escaped Delimiters", () => {
-    let nString : Name = new StringName("oss\\||fa\\.u|de", "|");
-    let nArray : Name = new StringArrayName(["oss\\|", "fa\\|", "de"], "|");
+    let nString : Name = new StringName("oss\\..fa\\.u.de");
+    let nArray : Name = new StringArrayName(["oss\\.", "fa\\.", "de"]);
 
-    expect(nString.asString()).toBe("oss||fa\\u|de");
-    expect(nArray.asString()).toBe("oss||fa|u|de");
-    testDataString("oss\\||fa\\|u|de", "|");
+    expect(nString.asString()).toBe("oss..fa.u.de");
+    expect(nArray.asString()).toBe("oss..fa.u.de");
+    testDataString("oss\\..fa\\.u.de");
   });
 
   it ("Edge Cases", () => {
