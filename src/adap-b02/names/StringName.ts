@@ -81,9 +81,11 @@ export class StringName implements Name {
     }
 
     public concat(other: Name): void {
-        for (let i = 0; i < other.getNoComponents(); i++) {
+        let other_length = other.getNoComponents()
+        for (let i = 0; i < other_length; i++) {
             this.append(other.getComponent(i));
         }
+        this.length += other_length;
     }
 
     protected splitAtNonControlCharacters(s : string, delimiter : string) : string[] {
