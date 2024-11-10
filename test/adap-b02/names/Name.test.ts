@@ -190,22 +190,22 @@ describe("Extra-Tests", () => {
 
   it("funny delimiter magic", () => {
     let nArray : Name = new StringArrayName(["o\\s\\s", "c\\s", "fau", "de"], "s");
-    let nString : Name = new StringName(nArray.asDataString().replaceAll(".", "s"), "s");
+    expect(nArray.asDataString()).toBe("oss.cs.fau.de");
+    let nString : Name = new StringName(nArray.asDataString().replaceAll("s", "\\s").replaceAll(".", "s"), "s");
     expect(nString.getComponent(0)).toBe("o\\s\\s");
     expect(nArray.asString()).toBe("ossscssfausde");
     expect(nString.asString()).toBe("ossscssfausde");
     expect(nString.getNoComponents()).toBe(4);
-    expect(nArray.asDataString()).toBe("o\\s\\s.c\\s.fau.de");
-    expect(nString.asDataString()).toBe("o\\s\\s.c\\s.fau.de");
+    expect(nString.asDataString()).toBe("oss.cs.fau.de");
   });
 
   it("unfunny delimiter magic", () => {
-    let nArray : Name = new StringArrayName(["o\\s\\s", "c\\s", "fau", "de"], "s");
-    let nString : Name = new StringName("o\\s\\ssc\\ssfausde", "s");
-    expect(nArray.asDataString()).toBe("o\\s\\s.c\\s.fau.de");
-    expect(nString.asDataString()).toBe("o\\s\\s.c\\s.fau.de");
-    expect(nArray.asString(".")).toBe("oss.cs.fau.de");
-    expect(nString.asString(".")).toBe("oss.cs.fau.de");
+    let nArray : Name = new StringArrayName(["o\\.\\.", "c\\.", "fau", "de"], ".");
+    expect(nArray.asDataString()).toBe("o\\.\\..c\\..fau.de");
+    let nString : Name = new StringName(nArray.asDataString(), ".");
+    expect(nString.asDataString()).toBe("o\\.\\..c\\..fau.de");
+    expect(nArray.asString(".")).toBe("o...c..fau.de");
+    expect(nString.asString(".")).toBe("o...c..fau.de");
   });
 
   it("Emtpy:", () => {
