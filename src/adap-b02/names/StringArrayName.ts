@@ -23,6 +23,12 @@ export class StringArrayName implements Name {
     }
 
     public asDataString(): string {
+        if (this.delimiter !== DEFAULT_DELIMITER) {
+            // Edge case: if default delimiter is not equal to this.delimiter
+            return this.components
+                .map(c => c.replaceAll(ESCAPE_CHARACTER + this.delimiter, this.delimiter))
+                .join(DEFAULT_DELIMITER);
+        }
         return this.components.join(DEFAULT_DELIMITER);
     }
 

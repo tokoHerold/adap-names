@@ -24,7 +24,11 @@ export class StringName implements Name {
     }
 
     public asDataString(): string {
-        return this.splitAtNonControlCharacters(this.name, this.delimiter).join(DEFAULT_DELIMITER);
+        let tmp =  this.splitAtNonControlCharacters(this.name, this.delimiter)
+        if (this.delimiter !== DEFAULT_DELIMITER) {
+            tmp = tmp.map(c => c.replaceAll(ESCAPE_CHARACTER + this.delimiter, this.delimiter))
+        }
+        return tmp.join(DEFAULT_DELIMITER);
     }
 
     public isEmpty(): boolean {
