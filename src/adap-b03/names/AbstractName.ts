@@ -18,7 +18,7 @@ export abstract class AbstractName implements Name {
     }
 
     public toString(): string {
-        return this.getComponents().join(this.delimiter);
+        return this.asDataString();
     }
 
     public asDataString(): string {
@@ -39,9 +39,9 @@ export abstract class AbstractName implements Name {
         throw new Error("needs implementation");
     }
 
-    public clone(): Name {
-        throw new Error("needs implementation");
-    }
+    // https://en.wikipedia.org/wiki/Object_copying#Shallow_copy
+    // Shallow copy must access the fields of the object
+    abstract clone(): Name;
 
     public isEmpty(): boolean {
         return this.getNoComponents() === 0;

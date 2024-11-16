@@ -14,6 +14,7 @@ export class StringName extends AbstractName {
     }
 
     getNoComponents(): number {
+        length = this.splitAtNonControlCharacters(this.name, this.delimiter).length; // name might change due to shallow copy
         return this.length;
     }
 
@@ -52,6 +53,14 @@ export class StringName extends AbstractName {
             this.name = components.join(this.delimiter);
             this.length = components.length;
         }
+    }
+
+    clone() : Name {
+        let copy = new StringName("blub");
+        copy.name = this.name;
+        copy.length = this.length;
+        copy.delimiter = this.delimiter; 
+        return copy;
     }
 
     protected splitAtNonControlCharacters(s : string, delimiter : string) : string[] {
