@@ -14,7 +14,7 @@ export class StringName extends AbstractName {
     }
 
     getNoComponents(): number {
-        length = this.splitAtNonControlCharacters(this.name, this.delimiter).length; // name might change due to shallow copy
+        this.length = this.splitAtNonControlCharacters(this.name, this.delimiter).length; // name might change due to shallow copy
         return this.length;
     }
 
