@@ -6,28 +6,38 @@ export class StringArrayName extends AbstractName {
     protected components: string[] = [];
 
     constructor(other: string[], delimiter?: string) {
-        super();
-        throw new Error("needs implementation");
+        super(delimiter);
+        if (other.length === 0) throw new Error("Emtpy names are not permitted!")
+            other.forEach(element => {
+                this.components.push(element);
+        });
     }
 
     getNoComponents(): number {
-        throw new Error("needs implementation");
+        return this.components.length;
     }
 
     getComponent(i: number): string {
-        throw new Error("needs implementation");
+        return this.components[i];
     }
+
     setComponent(i: number, c: string) {
-        throw new Error("needs implementation");
+        if (i >= 0 && i < this.components.length)
+            this.components[i] = c;
     }
 
     insert(i: number, c: string) {
-        throw new Error("needs implementation");
+        if (i >= 0 && i < this.components.length)
+            this.components.splice(i, 0, c);
+        else if (i === this.components.length)
+            this.append(c);
     }
+
     append(c: string) {
-        throw new Error("needs implementation");
+        this.components.push(c);
     }
     remove(i: number) {
-        throw new Error("needs implementation");
+        if (i >= 0 && i < this.components.length)
+            this.components.splice(i, 1);
     }
 }

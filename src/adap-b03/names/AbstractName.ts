@@ -5,19 +5,30 @@ export abstract class AbstractName implements Name {
     protected delimiter: string = DEFAULT_DELIMITER;
 
     constructor(delimiter: string = DEFAULT_DELIMITER) {
-        throw new Error("needs implementation");
+        if (delimiter !== undefined) {
+            this.delimiter = delimiter;
+        }
     }
 
     public asString(delimiter: string = this.delimiter): string {
-        throw new Error("needs implementation");
+        return this.getComponents()
+            .map(c => c.replaceAll(ESCAPE_CHARACTER + ESCAPE_CHARACTER, ESCAPE_CHARACTER))
+            .map(c => c.replaceAll(ESCAPE_CHARACTER + this.delimiter, this.delimiter))
+            .join(delimiter);
     }
 
     public toString(): string {
-        throw new Error("needs implementation");
+        return this.getComponents().join(this.delimiter);
     }
 
     public asDataString(): string {
-        throw new Error("needs implementation");
+        if (this.delimiter !== DEFAULT_DELIMITER) {
+            // Edge case: if default delimiter is not equal to this.delimiter
+            return this.getComponents()
+                .map(c => c.replaceAll(ESCAPE_CHARACTER + this.delimiter, this.delimiter))
+                .join(DEFAULT_DELIMITER);
+        }
+        return this.getComponents().join(DEFAULT_DELIMITER);
     }
 
     public isEqual(other: Name): boolean {
@@ -33,11 +44,11 @@ export abstract class AbstractName implements Name {
     }
 
     public isEmpty(): boolean {
-        throw new Error("needs implementation");
+        return this.getNoComponents() === 0;
     }
 
     public getDelimiterCharacter(): string {
-        throw new Error("needs implementation");
+        return this.delimiter;
     }
 
     abstract getNoComponents(): number;
@@ -50,7 +61,18 @@ export abstract class AbstractName implements Name {
     abstract remove(i: number): void;
 
     public concat(other: Name): void {
-        throw new Error("needs implementation");
+        for (let i = 0; i < other.getNoComponents(); i++) {
+            this.append(other.getComponent(i));
+        }
+    }
+
+    protected getComponents() : string[] {
+        let components : string[] = [];
+        for (let i = 0; i < this.getNoComponents(); i++) {
+            components.push(this.getComponent(i));
+
+        }
+        return components;
     }
 
 }
