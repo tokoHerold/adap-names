@@ -24,7 +24,7 @@ export class Name {
         for (let i = 0; i < other.length; i++) {
             this.components.push(other[i]);
         }
-        if (delimiter != undefined)
+        if (delimiter !== undefined)
             this.delimiter = delimiter;
     }
 
@@ -67,16 +67,15 @@ export class Name {
     //  @methodtype get-method
     public getComponent(i: number): string {
         return this.components[i];
-        return this.components[i];
     }
 
     /** Expects that new Name component c is properly masked */
     /** @methodtype set-method */
     public setComponent(i: number, c: string): void {
         this.components[i] = c;
-        this.components[i] = c;
     }
 
+    // @methodtype get-method
     public getNoComponents(): number {
         return this.components.length;
     }
@@ -85,13 +84,11 @@ export class Name {
     /** @methodtype command-method */
     public insert(i: number, c: string): void {
         this.components.splice(i, 0, c);
-        this.components.splice(i, 0, c);
     }
 
     /** Expects that new Name component c is properly masked */
     /** @methodtype command-method */
     public append(c: string): void {
-        this.components.push(c);
         this.components.push(c);
     }
 
@@ -100,6 +97,14 @@ export class Name {
         if (i >= 0 && i < this.components.length) {
             this.components.splice(i, 1);
         }
+    }
+
+    /** Helper method 
+     * tsconfig.json has the target JavaScript version set to 2016 (which is more than 8 years old btw),
+     * in which "string.replaceAll" does not exist yet.
+     */
+    protected replaceAll(str : string, searchValue : string, replaceValue : string) : string {
+        return str.split(searchValue).join(replaceValue);
     }
 
 }
