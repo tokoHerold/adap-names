@@ -3,6 +3,7 @@ import { describe, it, expect } from "vitest";
 import { Name } from "../../../src/adap-b03/names/Name";
 import { StringName } from "../../../src/adap-b03/names/StringName";
 import { StringArrayName } from "../../../src/adap-b03/names/StringArrayName";
+import { AbstractName } from "./AbstractName";
 
 describe("Basic StringName function tests", () => {
   it("test insert", () => {
@@ -86,7 +87,7 @@ describe("Extra-Tests", () => {
 
   it ("Cloning", () => {
     let nArray : Name = new StringArrayName(["cs", "fau", "de"]);
-    let copyArray : Name = nArray.clone();
+    let copyArray : Name = (nArray as AbstractName).clone();
     expect(copyArray.isEqual(nArray)).toBeTruthy();
     expect(nArray.getHashCode()).toBe(copyArray.getHashCode());
 
@@ -95,7 +96,7 @@ describe("Extra-Tests", () => {
     expect(nArray.getHashCode()).toBe(copyArray.getHashCode());
 
     let nString : Name = new StringName("cs.fau.de");
-    let copyString : Name = nString.clone();
+    let copyString : Name = (nString as AbstractName).clone();
     expect(copyString.isEqual(nString)).toBeTruthy();
     expect(nString.getHashCode()).toBe(copyString.getHashCode());
 
