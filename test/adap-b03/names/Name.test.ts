@@ -84,6 +84,26 @@ describe("Extra-Tests", () => {
     }
   }
 
+  it("Concat", () => {
+    let nStringA : Name = new StringName("oss.cs");
+    let nArrayA : Name = new StringArrayName(["fau", "de"]);
+    nStringA.concat(nArrayA);
+    expect(nStringA.getNoComponents()).toBe(4);
+    expect(nStringA.asString()).toBe("oss.cs.fau.de");
+
+    let nStringB : Name = new StringName("oss.cs.fau");
+    let nArrayB : Name = new StringArrayName(["de"]);
+    nStringB.concat(nArrayB);
+    expect(nStringB.getNoComponents()).toBe(4);
+    expect(nStringB.asString()).toBe("oss.cs.fau.de");
+
+    let nStringC : Name = new StringName("fau.de");
+    let nArrayC : Name = new StringArrayName(["oss", "cs"]);
+    nArrayC.concat(nStringC);
+    expect(nArrayC.getNoComponents()).toBe(4);
+    expect(nArrayC.asString()).toBe("oss.cs.fau.de");
+  })
+
   it("Full health check", () => {
     let nString : StringName = new StringName("oss.cs.fau.de");
     let nArray : StringArrayName = new StringArrayName(["oss", "cs", "fau", "de"]);
