@@ -22,13 +22,8 @@ export abstract class AbstractName implements Name {
     }
 
     public asDataString(): string {
-        if (this.delimiter !== DEFAULT_DELIMITER) {
-            // Edge case: if default delimiter is not equal to this.delimiter
-            return this.getComponents()
-                .map(c => c.replaceAll(ESCAPE_CHARACTER + this.delimiter, this.delimiter))
-                .join(DEFAULT_DELIMITER);
-        }
-        return this.getComponents().join(DEFAULT_DELIMITER);
+        return this.getComponents().join(this.delimiter);
+
     }
 
     public isEqual(other: Name): boolean {
