@@ -27,16 +27,32 @@ export abstract class AbstractName implements Name {
     }
 
     public isEqual(other: Name): boolean {
-        throw new Error("needs implementation");
+        if (this.getDelimiterCharacter() !== other.getDelimiterCharacter()) return false;
+        let noComponents = this.getNoComponents();
+        if (noComponents !== other.getNoComponents()) return false;
+        for (let i = 0; i < noComponents; i++) {
+            if (this.getComponent(i) !== other.getComponent(i)) return false;
+        }
+        return true;
     }
 
     public getHashCode(): number {
-        throw new Error("needs implementation");
+        let hashCode : number = this.delimiter.charCodeAt(0);
+        const s: string = this.asDataString();
+        for (let i = 0; i < s.length; i++) {
+            let c = s.charCodeAt(i);
+            hashCode = (hashCode << 5) - hashCode + c;
+            hashCode |= 0;
+        }
+        return hashCode;
     }
 
     // https://en.wikipedia.org/wiki/Object_copying#Shallow_copy
     // Shallow copy must access the fields of the object
-    abstract clone(): Name;
+    public clone(): Name {
+        // https://medium.com/@sandeep.h.hullatti/javascript-9-ways-to-shallow-copy-2bc2a866f4db
+        return Object.create(this)
+    }
 
     public isEmpty(): boolean {
         return this.getNoComponents() === 0;

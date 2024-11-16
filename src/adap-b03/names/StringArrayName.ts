@@ -41,11 +41,4 @@ export class StringArrayName extends AbstractName {
         if (i >= 0 && i < this.components.length)
             this.components.splice(i, 1);
     }
-
-    public clone() : Name {
-        let copy = new StringArrayName([""]);
-        copy.components = this.components;
-        copy.delimiter = this.delimiter;
-        return copy;
-    }
 }

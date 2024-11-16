@@ -55,14 +55,6 @@ export class StringName extends AbstractName {
         }
     }
 
-    clone() : Name {
-        let copy = new StringName("blub");
-        copy.name = this.name;
-        copy.length = this.length;
-        copy.delimiter = this.delimiter; 
-        return copy;
-    }
-
     protected splitAtNonControlCharacters(s : string, delimiter : string) : string[] {
         let result : string[] = [];
         let lastSplitIndex = 0;
