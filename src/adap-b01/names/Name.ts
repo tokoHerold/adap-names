@@ -11,28 +11,36 @@ export class Name {
         for (let i = 0; i < other.length; i++) {
             this.components.push(other[i]);
         }
-        if (delimiter != undefined)
+        if (delimiter !== undefined)
             this.delimiter = delimiter;
     }
 
     /** Returns human-readable representation of Name instance */
     // @methodtype conversion-method
     public asNameString(delimiter: string = this.delimiter): string {
-        return this.components.join(delimiter);
+        let human_readable: string[] = [];
+        // Replace special occurances:
+        this.components.forEach((component) => {
+            // escape characters inside components
+            component = this.replaceAll(component, this.ESCAPE_CHARACTER, this.ESCAPE_CHARACTER + this.ESCAPE_CHARACTER);
+            // delimiters inside components
+            component = this.replaceAll(component, delimiter, this.ESCAPE_CHARACTER + delimiter);
+            human_readable.push(component)
+        });
+        return human_readable.join(delimiter);
     }
 
     //  @methodtype get-method
     public getComponent(i: number): string {
-        return this.components[i];
         return this.components[i];
     }
 
     // @methodtype set-method
     public setComponent(i: number, c: string): void {
         this.components[i] = c;
-        this.components[i] = c;
     }
 
+    // @methodtype get-method
     public getNoComponents(): number {
         return this.components.length;
     }
@@ -40,12 +48,10 @@ export class Name {
     // @methodtype command-method
     public insert(i: number, c: string): void {
         this.components.splice(i, 0, c);
-        this.components.splice(i, 0, c);
     }
 
     // @methodtype command-method
     public append(c: string): void {
-        this.components.push(c);
         this.components.push(c);
     }
 
@@ -54,6 +60,14 @@ export class Name {
         if (0 >= i && i < this.components.length) {
             this.components.splice(i, 1);
         }
+    }
+
+    /** Helper method 
+     * tsconfig.json has the target JavaScript version set to 2016 (which is more than 8 years old btw),
+     * in which "string.replaceAll" does not exist yet.
+     */
+    protected replaceAll(str : string, searchValue : string, replaceValue : string) : string {
+        return str.split(searchValue).join(replaceValue);
     }
 
 }
