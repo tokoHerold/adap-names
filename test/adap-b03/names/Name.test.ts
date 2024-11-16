@@ -84,6 +84,52 @@ describe("Extra-Tests", () => {
     }
   }
 
+  it ("Cloning", () => {
+    let nArray : Name = new StringArrayName(["cs", "fau", "de"]);
+    let copyArray : Name = nArray.clone();
+    expect(copyArray.isEqual(nArray)).toBeTruthy();
+    expect(nArray.getHashCode()).toBe(copyArray.getHashCode());
+
+    nArray.insert(0, "cip");
+    expect(copyArray.isEqual(nArray)).toBeTruthy();
+    expect(nArray.getHashCode()).toBe(copyArray.getHashCode());
+
+    let nString : Name = new StringName("cs.fau.de");
+    let copyString : Name = nString.clone();
+    expect(copyString.isEqual(nString)).toBeTruthy();
+    expect(nString.getHashCode()).toBe(copyString.getHashCode());
+
+    expect(copyString.isEqual(copyArray)).toBeFalsy();
+    expect(copyArray.getHashCode() !== copyString.getHashCode()).toBeTruthy();
+
+    nString.insert(0, "cip");
+    expect(copyString.isEqual(nString)).toBeTruthy();
+    expect(nString.getHashCode()).toBe(copyString.getHashCode());
+    
+    expect(copyString.isEqual(copyArray)).toBeTruthy();
+    expect(copyArray.getHashCode()).toBe(copyString.getHashCode());
+  });
+
+  it ("Equality", () => {
+    let nStringA : Name = new StringName("oss.cs.fau.de")
+    let nStringB : Name = new StringName("oss.cs.fau.de")
+    let nArrayA : Name = new StringArrayName(["oss", "cs", "fau", "de"])
+    let nArrayB : Name = new StringArrayName(["oss", "cs", "fau", "de"])
+    expect(nStringA.isEqual(nStringB)).toBeTruthy;
+    expect(nStringB.isEqual(nArrayA)).toBeTruthy;
+    expect(nArrayA.isEqual(nArrayB)).toBeTruthy;
+    expect(nStringA.getHashCode()).toBe(nStringB.getHashCode());
+    expect(nStringA.getHashCode()).toBe(nArrayA.getHashCode());
+    expect(nStringA.getHashCode()).toBe(nArrayB.getHashCode());
+
+    let nStringC : Name = new StringName("oss#cs#fau#de", "#");
+    let nStringD : Name = new StringName("oss.cs.fau.de", "#");
+    expect(nStringA.isEqual(nStringC)).toBeFalsy;
+    expect(nStringA.isEqual(nStringD)).toBeFalsy;
+    expect(nStringA.getHashCode() === nStringC.getHashCode()).toBeFalsy();
+    expect(nStringA.getHashCode() === nStringD.getHashCode()).toBeFalsy();
+  });
+
   it("Concat", () => {
     let nStringA : Name = new StringName("oss.cs");
     let nArrayA : Name = new StringArrayName(["fau", "de"]);
@@ -148,6 +194,7 @@ describe("Extra-Tests", () => {
     expect(nArray.getComponent(1)).toBe("c\\.s");
     expect(nArray.asDataString()).toBe("oss.c\\.s.fau.de");
     expect(nArray.asString()).toBe("oss.c.s.fau.de");
+    expect(nArray.isEqual(nString)).toBeTruthy();
 
     // insert(0)
     nString.insert(0, "yep");
@@ -158,6 +205,7 @@ describe("Extra-Tests", () => {
     expect(nArray.getComponent(0)).toBe("yep");
     expect(nArray.asDataString()).toBe("yep.oss.c\\.s.fau.de");
     expect(nArray.asString()).toBe("yep.oss.c.s.fau.de");
+    expect(nArray.isEqual(nString)).toBeTruthy();
 
     // insert(5)
     nString.insert(5, "yep");
@@ -168,6 +216,7 @@ describe("Extra-Tests", () => {
     expect(nArray.getComponent(5)).toBe("yep");
     expect(nArray.asDataString()).toBe("yep.oss.c\\.s.fau.de.yep");
     expect(nArray.asString()).toBe("yep.oss.c.s.fau.de.yep");
+    expect(nArray.isEqual(nString)).toBeTruthy();
 
     // insert(3)
     nString.insert(3, "yeppers");
@@ -178,6 +227,7 @@ describe("Extra-Tests", () => {
     expect(nArray.getComponent(3)).toBe("yeppers");
     expect(nArray.asDataString()).toBe("yep.oss.c\\.s.yeppers.fau.de.yep");
     expect(nArray.asString()).toBe("yep.oss.c.s.yeppers.fau.de.yep");
+    expect(nArray.isEqual(nString)).toBeTruthy();
 
     // append
     nString.append("coggers");
@@ -188,6 +238,7 @@ describe("Extra-Tests", () => {
     expect(nArray.getNoComponents()).toBe(8);
     expect(nArray.getComponent(7)).toBe("coggers");
     expect(nArray.asString()).toBe("yep.oss.c.s.yeppers.fau.de.yep.coggers");
+    expect(nArray.isEqual(nString)).toBeTruthy();
 
     // remove
     nString.remove(7);
@@ -202,10 +253,12 @@ describe("Extra-Tests", () => {
     expect(nArray.getNoComponents()).toBe(4);
     expect(nString.asDataString()).toBe("oss.c\\.s.fau.de");
     expect(nArray.asDataString()).toBe("oss.c\\.s.fau.de");
+    expect(nArray.isEqual(nString)).toBeTruthy();
     nString.setComponent(1, "cs");
     nArray.setComponent(1, "cs");
     expect(nString.asDataString()).toBe("oss.cs.fau.de");
     expect(nArray.asDataString()).toBe("oss.cs.fau.de");
+    expect(nArray.isEqual(nString)).toBeTruthy();
   });
 
   it("funny delimiter magic", () => {
@@ -217,6 +270,7 @@ describe("Extra-Tests", () => {
     expect(nString.asString()).toBe("ossscssfausde");
     expect(nString.getNoComponents()).toBe(4);
     expect(nString.asDataString()).toBe("o\\s\\ssc\\ssfausde");
+    expect(nArray.isEqual(nString)).toBeTruthy();
   });
 
   it("unfunny delimiter magic", () => {
@@ -226,6 +280,7 @@ describe("Extra-Tests", () => {
     expect(nString.asDataString()).toBe("o\\.\\..c\\..fau.de");
     expect(nArray.asString(".")).toBe("o...c..fau.de");
     expect(nString.asString(".")).toBe("o...c..fau.de");
+    expect(nArray.isEqual(nString)).toBeTruthy();
   });
 
   it("Emtpy:", () => {
