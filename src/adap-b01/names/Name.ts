@@ -28,24 +28,31 @@ export class Name {
             this.delimiter = delimiter;
     }
 
-    /**
-     * Returns a human-readable representation of the Name instance using user-set control characters
-     * Control characters are not escaped (creating a human-readable string)
-     * Users can vary the delimiter character to be used
-     */
-    public asString(delimiter: string = this.delimiter): string {
-        throw new Error("needs implementation or deletion");
-    }
+        /**
+         * Returns a human-readable representation of the Name instance using user-set control characters
+         * Control characters are not escaped (creating a human-readable string)
+         * Users can vary the delimiter character to be used
+         */
+        public asString(delimiter: string = this.delimiter): string {
+            return this.components.map(d => d.replaceAll(ESCAPE_CHARACTER + ESCAPE_CHARACTER, ESCAPE_CHARACTER))
+                .map(d => d.replaceAll(ESCAPE_CHARACTER + this.delimiter, this.delimiter))
+                .join(delimiter)
+        }
 
-    /** 
-     * Returns a machine-readable representation of Name instance using default control characters
-     * Machine-readable means that from a data string, a Name can be parsed back in
-     * The control characters in the data string are the default characters
-     */
-    public asDataString(): string {
-        throw new Error("needs implementation or deletion");
-    }
-    
+        /** 
+         * Returns a machine-readable representation of Name instance using default control characters
+         * Machine-readable means that from a data string, a Name can be parsed back in
+         * The control characters in the data string are the default characters
+         */
+        public asDataString(): string {
+            if (this.delimiter !== DEFAULT_DELIMITER) {
+                // Edge case: if default delimiter is not equal to this.delimiter
+                return this.components
+                    .map(c => c.replaceAll(ESCAPE_CHARACTER + this.delimiter, this.delimiter))
+                    .join(DEFAULT_DELIMITER);
+            }
+            return this.components.join(DEFAULT_DELIMITER);
+        }
 
     /** Returns human-readable representation of Name instance
     /** @methodtype conversion-method */
