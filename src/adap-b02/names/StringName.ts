@@ -85,7 +85,6 @@ export class StringName implements Name {
         for (let i = 0; i < other_length; i++) {
             this.append(other.getComponent(i));
         }
-        this.length += other_length;
     }
 
     protected splitAtNonControlCharacters(s : string, delimiter : string) : string[] {

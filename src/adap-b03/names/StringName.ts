@@ -80,17 +80,4 @@ export class StringName extends AbstractName {
         result.push(s.substring(lastSplitIndex)); // Append remainder to split list
         return result;
     }
-
-    public getHashCode(): number {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public isEmpty(): boolean {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public getDelimiterCharacter(): string {
-        throw new Error("needs implementation or deletion");
-    }
-
 }

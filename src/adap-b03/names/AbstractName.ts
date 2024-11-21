@@ -11,10 +11,6 @@ export abstract class AbstractName implements Name {
         }
     }
 
-    public clone(): Name {
-        throw new Error("needs implementation or deletion");
-    }
-
     public asString(delimiter: string = this.delimiter): string {
         return this.getComponents()
             .map(c => c.replaceAll(ESCAPE_CHARACTER + ESCAPE_CHARACTER, ESCAPE_CHARACTER))
@@ -50,6 +46,13 @@ export abstract class AbstractName implements Name {
             hashCode |= 0;
         }
         return hashCode;
+    }
+
+    // https://en.wikipedia.org/wiki/Object_copying#Shallow_copy
+    // Shallow copy must access the fields of the object
+    public clone(): Name {
+        // https://medium.com/@sandeep.h.hullatti/javascript-9-ways-to-shallow-copy-2bc2a866f4db
+        return Object.create(this)
     }
 
     public isEmpty(): boolean {
