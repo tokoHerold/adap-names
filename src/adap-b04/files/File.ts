@@ -1,6 +1,6 @@
 import { Node } from "./Node";
 import { Directory } from "./Directory";
-import { MethodFailedException } from "../common/MethodFailedException";
+import { InvalidStateException } from "../common/InvalidStateException";
 
 enum FileState {
     OPEN,
@@ -17,6 +17,7 @@ export class File extends Node {
     }
 
     public open(): void {
+        InvalidStateException.assertCondition(this.doGetFileState() === FileState.CLOSED, "Can only open closed files!");
         // do something
     }
 
@@ -26,6 +27,7 @@ export class File extends Node {
     }
 
     public close(): void {
+        InvalidStateException.assertCondition(this.doGetFileState() === FileState.OPEN, "Can only close open files!");
         // do something
     }
 
