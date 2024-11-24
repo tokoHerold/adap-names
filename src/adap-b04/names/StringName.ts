@@ -7,65 +7,108 @@ export class StringName extends AbstractName {
     protected name: string = "";
     protected noComponents: number = 0;
 
-    constructor(source: string, delimiter?: string) {
-        super();
-        throw new Error("needs implementation or deletion");
+    constructor(other: string, delimiter?: string) {
+         super(delimiter);
+        this.noComponents = this.splitAtNonControlCharacters(other, this.delimiter).length
+        this.name = other;
     }
 
     public clone(): Name {
-        throw new Error("needs implementation or deletion");
+        return super.clone()
     }
 
     public asString(delimiter: string = this.delimiter): string {
-        throw new Error("needs implementation or deletion");
+        return super.asString();
+    }
+
+    public toString(): string {
+        return super.toString();
     }
 
     public asDataString(): string {
-        throw new Error("needs implementation or deletion");
+        return super.asDataString();
     }
 
     public isEqual(other: Name): boolean {
-        throw new Error("needs implementation or deletion");
+        return super.isEqual(other);
     }
 
     public getHashCode(): number {
-        throw new Error("needs implementation or deletion");
+        return super.getHashCode();
     }
 
     public isEmpty(): boolean {
-        throw new Error("needs implementation or deletion");
+        return super.isEmpty();
     }
 
     public getDelimiterCharacter(): string {
-        throw new Error("needs implementation or deletion");
+        return super.getDelimiterCharacter();
     }
 
     public getNoComponents(): number {
-        throw new Error("needs implementation or deletion");
+        return this.noComponents;
     }
 
     public getComponent(i: number): string {
-        throw new Error("needs implementation or deletion");
+        return this.splitAtNonControlCharacters(this.name, this.delimiter)[i];
     }
 
     public setComponent(i: number, c: string) {
-        throw new Error("needs implementation or deletion");
+        let components = this.splitAtNonControlCharacters(this.name, this.delimiter);
+        components[i] = c;
+        this.name = components.join(this.delimiter);
     }
 
     public insert(i: number, c: string) {
-        throw new Error("needs implementation or deletion");
+        if (0 <= i && i < this.noComponents) {
+            let components = this.splitAtNonControlCharacters(this.name, this.delimiter);
+            components.splice(i, 0, c);
+            this.name = components.join(this.delimiter);
+            this.noComponents = components.length;
+        } else if (i === this.noComponents) {
+            this.append(c);
+        }
     }
 
     public append(c: string) {
-        throw new Error("needs implementation or deletion");
+        this.name += this.delimiter + c;
+        this.noComponents += 1;
     }
 
     public remove(i: number) {
-        throw new Error("needs implementation or deletion");
+        let components = this.splitAtNonControlCharacters(this.name, this.delimiter);
+        components.splice(i, 1);
+        this.name = components.join(this.delimiter);
+        this.noComponents = components.length;
     }
 
     public concat(other: Name): void {
-        throw new Error("needs implementation or deletion");
+        super.concat(other);
     }
 
+    protected splitAtNonControlCharacters(s : string, delimiter : string) : string[] {
+        let result : string[] = [];
+        let lastSplitIndex = 0;
+        for (let i = 0; i < s.length; i++) {
+            let c = s.charAt(i);
+            if (c === ESCAPE_CHARACTER) {
+                // Found escape character - next one must be either delimiter or escape character
+                if (i + 1 === s.length) throw new Error("Input was not correctly masked!")
+                let c_next = s.charAt(i+1);
+                if (c_next === ESCAPE_CHARACTER || c_next === delimiter) {
+                    i += 1; // Skip next iteration
+                } else {
+                    throw new Error("Input was not correctly masked!");
+                }
+            }
+
+            if (c === delimiter) {
+                // Found delimiter - split string
+                result.push(s.substring(lastSplitIndex, i)); // don't include delimiter
+                lastSplitIndex = i + 1;
+            }
+        }
+        result.push(s.substring(lastSplitIndex)); // Append remainder to split list
+        return result;
+    }
 }
