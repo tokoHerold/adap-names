@@ -4,6 +4,7 @@ import { Name } from "../../../src/adap-b04/names/Name";
 import { StringName } from "../../../src/adap-b04/names/StringName";
 import { StringArrayName } from "../../../src/adap-b04/names/StringArrayName";
 import { AbstractName } from "../../../src/adap-b04/names/AbstractName";
+import { IllegalArgumentException } from "../../../src/adap-b04/common/IllegalArgumentException";
 
 describe("Basic StringName function tests", () => {
   it("test insert", () => {
@@ -58,6 +59,74 @@ describe("Escape character extravaganza", () => {
     expect(n.asString()).toBe("oss.cs.fau.de#people");
   });
 });
+
+describe("Design By Contract Tests", () => {
+
+    function getInvalidName() : Name {
+        let n : StringName = new StringName("cs.fau.de");
+        (n as any)["noComponents"] = 5;
+        return n;
+    }
+
+    function testPreconditions(n : Name) {
+        const clone : Object = structuredClone(n);
+        Object.setPrototypeOf(clone, Object.getPrototypeOf(n));
+
+        // getComponent
+        expect(() => n.getComponent(n.getNoComponents())).toThrow(IllegalArgumentException);
+        expect(() => n.getComponent(-1)).toThrow(IllegalArgumentException);
+        
+        // setComponent
+        expect(() => n.setComponent(n.getNoComponents(), "a")).toThrow(IllegalArgumentException);
+        expect(() => n.setComponent(-1, "a")).toThrow(IllegalArgumentException);
+        expect(() => n.setComponent(0, (null as any))).toThrow(IllegalArgumentException);
+
+        // insert
+        expect(() => n.insert(0, (null as any))).toThrow(IllegalArgumentException);
+        n.insert(n.getNoComponents(), "a"); // Should work
+        n.remove(n.getNoComponents() - 1)
+        expect(() => n.insert(n.getNoComponents() + 1, "a")).toThrow(IllegalArgumentException);
+
+        // append
+        expect(() => n.append((null as any))).toThrow(IllegalArgumentException);
+
+        // remove
+        expect(() => n.remove(n.getNoComponents())).toThrow(IllegalArgumentException);
+        expect(() => n.remove(-1)).toThrow(IllegalArgumentException);
+
+        // Concat
+        expect(() => n.concat((null as any))).toThrow(IllegalArgumentException);
+        expect(() => n.concat(getInvalidName())).toThrow(IllegalArgumentException);
+
+        // asString
+        expect(() => n.asString("yo")).toThrow(IllegalArgumentException);
+        expect(() => n.asString("")).toThrow(IllegalArgumentException);
+        expect(() => n.asString((null as any))).toThrow(IllegalArgumentException);
+
+        // isEqual
+        expect(() => n.isEqual((null as any))).toThrow(IllegalArgumentException);
+        expect(() => n.isEqual(getInvalidName())).toThrow(IllegalArgumentException);
+
+        // Assure that state was not modified
+        expect(n.isEqual(clone)).toBeTruthy();
+    }
+
+    it("Preconditions", () =>  {
+        expect(() =>new StringArrayName([""], "yo")).toThrow(IllegalArgumentException);
+        expect(() =>new StringArrayName([""], "")).toThrow(IllegalArgumentException);
+        expect(() =>new StringName("string", "yo")).toThrow(IllegalArgumentException);
+        expect(() =>new StringName("string", "")).toThrow(IllegalArgumentException);
+
+        expect(() =>new StringArrayName([""], (null as any))).toThrow(IllegalArgumentException);
+        expect(() =>new StringName("string", (null as any))).toThrow(IllegalArgumentException);
+
+        testPreconditions(new StringArrayName(["cs", "fau", "de", "ö"]));
+        testPreconditions(new StringName("csüfauüde", "ü"));
+    })
+
+
+
+})
 
 describe("Extra-Tests for functionality", () => {
 
