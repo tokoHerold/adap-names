@@ -3,7 +3,7 @@ import { describe, it, expect } from "vitest";
 import { Name } from "../../../src/adap-b04/names/Name";
 import { StringName } from "../../../src/adap-b04/names/StringName";
 import { StringArrayName } from "../../../src/adap-b04/names/StringArrayName";
-import { AbstractName } from "./AbstractName";
+import { AbstractName } from "../../../src/adap-b04/names/AbstractName";
 
 describe("Basic StringName function tests", () => {
   it("test insert", () => {

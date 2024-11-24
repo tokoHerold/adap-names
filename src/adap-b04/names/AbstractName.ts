@@ -49,11 +49,13 @@ export abstract class AbstractName implements Name {
 
     public getHashCode(): number {
         let hashCode : number = this.delimiter.charCodeAt(0);
-        const s: string = this.asDataString();
-        for (let i = 0; i < s.length; i++) {
-            let c = s.charCodeAt(i);
-            hashCode = (hashCode << 5) - hashCode + c;
-            hashCode |= 0;
+        const components: string[] = this.getComponents();
+        for (let s of components) {
+            for (let i = 0; i < s.length; i++) {
+                let c = s.charCodeAt(i);
+                hashCode = (hashCode << 5) - hashCode + c;
+                hashCode |= 0;
+            }
         }
         return hashCode;
     }
