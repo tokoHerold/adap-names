@@ -1,6 +1,8 @@
 import { DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "../common/Printable";
 import { Name } from "./Name";
 import { AbstractName } from "./AbstractName";
+import { InvalidStateException } from "../common/InvalidStateException";
+import { IllegalArgumentException } from "../common/IllegalArgumentException";
 
 export class StringName extends AbstractName {
 
@@ -8,8 +10,13 @@ export class StringName extends AbstractName {
     protected noComponents: number = 0;
 
     constructor(other: string, delimiter?: string) {
-         super(delimiter);
-        this.noComponents = this.splitAtNonControlCharacters(other, this.delimiter).length
+        IllegalArgumentException.assertIsNotNullOrUndefined(other);
+        super(delimiter);
+        try {
+            this.noComponents = this.splitAtNonControlCharacters(other, this.delimiter).length
+        } catch {
+            throw new IllegalArgumentException("Input was not correctly masked!");
+        }
         this.name = other;
     }
 
@@ -50,16 +57,26 @@ export class StringName extends AbstractName {
     }
 
     public getComponent(i: number): string {
+        IllegalArgumentException.assertIsNotNullOrUndefined(i);
+        IllegalArgumentException.assertCondition(i >= 0 && i < this.noComponents, "Illegal index!");
         return this.splitAtNonControlCharacters(this.name, this.delimiter)[i];
     }
 
     public setComponent(i: number, c: string) {
+        IllegalArgumentException.assertIsNotNullOrUndefined(i);
+        IllegalArgumentException.assertCondition(i >= 0 && i < this.noComponents, "Illegal index!");
+        IllegalArgumentException.assertIsNotNullOrUndefined(c);
+        IllegalArgumentException.assertCondition(AbstractName.isComponentCorrectlyMasked(c, this.delimiter), "Component is not correctly masked!");
         let components = this.splitAtNonControlCharacters(this.name, this.delimiter);
         components[i] = c;
         this.name = components.join(this.delimiter);
     }
 
     public insert(i: number, c: string) {
+        IllegalArgumentException.assertIsNotNullOrUndefined(i);
+        IllegalArgumentException.assertCondition(i >= 0 && i <= this.noComponents, "Illegal index!");
+        IllegalArgumentException.assertIsNotNullOrUndefined(c);
+        IllegalArgumentException.assertCondition(AbstractName.isComponentCorrectlyMasked(c, this.delimiter), "Component is not correctly masked!");
         if (0 <= i && i < this.noComponents) {
             let components = this.splitAtNonControlCharacters(this.name, this.delimiter);
             components.splice(i, 0, c);
@@ -71,11 +88,15 @@ export class StringName extends AbstractName {
     }
 
     public append(c: string) {
+        IllegalArgumentException.assertIsNotNullOrUndefined(c);
+        IllegalArgumentException.assertCondition(AbstractName.isComponentCorrectlyMasked(c, this.delimiter), "Component is not correctly masked!");
         this.name += this.delimiter + c;
         this.noComponents += 1;
     }
 
     public remove(i: number) {
+        IllegalArgumentException.assertIsNotNullOrUndefined(i);
+        IllegalArgumentException.assertCondition(i >= 0 && i < this.noComponents, "Illegal index!");
         let components = this.splitAtNonControlCharacters(this.name, this.delimiter);
         components.splice(i, 1);
         this.name = components.join(this.delimiter);
@@ -83,6 +104,7 @@ export class StringName extends AbstractName {
     }
 
     public concat(other: Name): void {
+        IllegalArgumentException.assertIsNotNullOrUndefined(other);
         super.concat(other);
     }
 
@@ -93,12 +115,12 @@ export class StringName extends AbstractName {
             let c = s.charAt(i);
             if (c === ESCAPE_CHARACTER) {
                 // Found escape character - next one must be either delimiter or escape character
-                if (i + 1 === s.length) throw new Error("Input was not correctly masked!")
+                InvalidStateException.assertCondition(i + 1 !== s.length, "Name is not correctly masked!");
                 let c_next = s.charAt(i+1);
                 if (c_next === ESCAPE_CHARACTER || c_next === delimiter) {
                     i += 1; // Skip next iteration
                 } else {
-                    throw new Error("Input was not correctly masked!");
+                    throw new InvalidStateException("Name is not correctly masked!")
                 }
             }
 

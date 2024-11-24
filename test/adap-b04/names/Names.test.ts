@@ -62,15 +62,10 @@ describe("Escape character extravaganza", () => {
 
 describe("Design By Contract Tests", () => {
 
-    function getInvalidName() : Name {
-        let n : StringName = new StringName("cs.fau.de");
-        (n as any)["noComponents"] = 5;
-        return n;
-    }
-
     function testPreconditions(n : Name) {
         const clone : Object = structuredClone(n);
         Object.setPrototypeOf(clone, Object.getPrototypeOf(n));
+        let delimiter : string = n.getDelimiterCharacter();
 
         // getComponent
         expect(() => n.getComponent(n.getNoComponents())).toThrow(IllegalArgumentException);
@@ -80,15 +75,21 @@ describe("Design By Contract Tests", () => {
         expect(() => n.setComponent(n.getNoComponents(), "a")).toThrow(IllegalArgumentException);
         expect(() => n.setComponent(-1, "a")).toThrow(IllegalArgumentException);
         expect(() => n.setComponent(0, (null as any))).toThrow(IllegalArgumentException);
+        expect(() => n.setComponent(0, "a\\b")).toThrow(IllegalArgumentException);
+        expect(() => n.setComponent(0, "a" + delimiter)).toThrow(IllegalArgumentException);
 
         // insert
         expect(() => n.insert(0, (null as any))).toThrow(IllegalArgumentException);
         n.insert(n.getNoComponents(), "a"); // Should work
         n.remove(n.getNoComponents() - 1)
         expect(() => n.insert(n.getNoComponents() + 1, "a")).toThrow(IllegalArgumentException);
+        expect(() => n.insert(n.getNoComponents(), "a\\b")).toThrow(IllegalArgumentException);
+        expect(() => n.insert(n.getNoComponents(), delimiter + "a")).toThrow(IllegalArgumentException);
 
         // append
         expect(() => n.append((null as any))).toThrow(IllegalArgumentException);
+        expect(() => n.append(delimiter)).toThrow(IllegalArgumentException);
+        expect(() => n.append("\\")).toThrow(IllegalArgumentException);
 
         // remove
         expect(() => n.remove(n.getNoComponents())).toThrow(IllegalArgumentException);
@@ -96,7 +97,6 @@ describe("Design By Contract Tests", () => {
 
         // Concat
         expect(() => n.concat((null as any))).toThrow(IllegalArgumentException);
-        expect(() => n.concat(getInvalidName())).toThrow(IllegalArgumentException);
 
         // asString
         expect(() => n.asString("yo")).toThrow(IllegalArgumentException);
@@ -105,7 +105,6 @@ describe("Design By Contract Tests", () => {
 
         // isEqual
         expect(() => n.isEqual((null as any))).toThrow(IllegalArgumentException);
-        expect(() => n.isEqual(getInvalidName())).toThrow(IllegalArgumentException);
 
         // Assure that state was not modified
         expect(n.isEqual(clone)).toBeTruthy();
@@ -114,8 +113,10 @@ describe("Design By Contract Tests", () => {
     it("Preconditions", () =>  {
         expect(() =>new StringArrayName([""], "yo")).toThrow(IllegalArgumentException);
         expect(() =>new StringArrayName([""], "")).toThrow(IllegalArgumentException);
+        expect(() =>new StringArrayName(["fau.de"], ".")).toThrow(IllegalArgumentException);
         expect(() =>new StringName("string", "yo")).toThrow(IllegalArgumentException);
         expect(() =>new StringName("string", "")).toThrow(IllegalArgumentException);
+        expect(() =>new StringName("fa\\u.de", ".")).toThrow(IllegalArgumentException);
 
         expect(() =>new StringArrayName([""], (null as any))).toThrow(IllegalArgumentException);
         expect(() =>new StringName("string", (null as any))).toThrow(IllegalArgumentException);

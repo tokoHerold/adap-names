@@ -1,3 +1,4 @@
+import { IllegalArgumentException } from "../common/IllegalArgumentException";
 import { DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "../common/Printable";
 import { Name } from "./Name";
 
@@ -7,6 +8,8 @@ export abstract class AbstractName implements Name {
 
     constructor(delimiter: string = DEFAULT_DELIMITER) {
         if (delimiter !== undefined) {
+            IllegalArgumentException.assertIsNotNullOrUndefined(delimiter);
+            this.assertValidDelimiter(delimiter);
             this.delimiter = delimiter;
         }
     }
@@ -16,6 +19,8 @@ export abstract class AbstractName implements Name {
     }
 
     public asString(delimiter: string = this.delimiter): string {
+        IllegalArgumentException.assertIsNotNullOrUndefined(delimiter);
+        this.assertValidDelimiter(delimiter);
         return this.getComponents()
             .map(c => c.replaceAll(ESCAPE_CHARACTER + ESCAPE_CHARACTER, ESCAPE_CHARACTER))
             .map(c => c.replaceAll(ESCAPE_CHARACTER + this.delimiter, this.delimiter))
@@ -37,6 +42,8 @@ export abstract class AbstractName implements Name {
     }
 
     public isEqual(other: Name): boolean {
+        IllegalArgumentException.assertIsNotNullOrUndefined(other);
+        IllegalArgumentException.assertCondition(AbstractName.isCorrectlyMasked(other), "Name is not correctly masked")
         if (this === other) return true;
         if (this.getDelimiterCharacter() !== other.getDelimiterCharacter()) return false;
         let noComponents = this.getNoComponents();
@@ -91,5 +98,40 @@ export abstract class AbstractName implements Name {
         }
         return components;
     }
+
+    protected assertValidDelimiter(c : string) {
+        IllegalArgumentException.assertCondition(typeof c === "string", "Delimiter must be a string");
+        IllegalArgumentException.assertCondition(c.length === 1, "Delimiter must be exactly one character");
+        IllegalArgumentException.assertCondition(c !== ESCAPE_CHARACTER, "Delimiter cannot be the escape character!");
+    }
+
+    protected static isComponentCorrectlyMasked(component : string, delimiter : string) : boolean {
+        for (let i = 0; i < component.length; i++) {
+            let c = component.charAt(i);
+            if (c === ESCAPE_CHARACTER) {
+                // Found escape character - next one must be either delimiter or escape character
+                if (i + 1 === component.length) return false;
+                let c_next = component.charAt(i+1);
+                if (c_next === ESCAPE_CHARACTER || c_next === delimiter) {
+                    i += 1; // Skip next iteration
+                } else {
+                    return false;
+                }
+            } else if (c === delimiter) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    protected static isCorrectlyMasked(n : Name) : boolean {
+       for (let i = 0; i < n.getNoComponents(); i++) {
+            if (!this.isComponentCorrectlyMasked(n.getComponent(i), n.getDelimiterCharacter())) {
+                return false;
+            }
+       } 
+       return true;
+    }
+
 
 }
