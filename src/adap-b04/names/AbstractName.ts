@@ -27,7 +27,13 @@ export abstract class AbstractName implements Name {
     }
 
     public asDataString(): string {
-        return this.getComponents().join(this.delimiter);
+        if (this.getDelimiterCharacter() !== DEFAULT_DELIMITER) {
+            // Need to unmask control characters
+            return this.getComponents()
+                .map(c => c.replaceAll(ESCAPE_CHARACTER + this.delimiter, this.delimiter))
+                .join(DEFAULT_DELIMITER);
+        }
+        return this.getComponents().join(DEFAULT_DELIMITER);
     }
 
     public isEqual(other: Name): boolean {

@@ -18,7 +18,7 @@ export class StringName extends AbstractName {
     }
 
     public asString(delimiter: string = this.delimiter): string {
-        return super.asString();
+        return super.asString(delimiter);
     }
 
     public toString(): string {
