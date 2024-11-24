@@ -43,6 +43,7 @@ export class Node {
 
     public rename(bn: string): void {
         IllegalArgumentException.assertIsNotNullOrUndefined(bn, "Basename must not be null or undefined!")   
+        IllegalArgumentException.assertCondition(bn !== "", "Base name must not be empty!");
         this.doSetBaseName(bn);
     }
 
