@@ -2,6 +2,7 @@ import { DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "../common/Printable";
 import { Name } from "./Name";
 import { AbstractName } from "./AbstractName";
 import { IllegalArgumentException } from "../common/IllegalArgumentException";
+import { MethodFailedException } from "../../adap-b05/common/MethodFailedException";
 
 export class StringArrayName extends AbstractName {
 
@@ -13,6 +14,7 @@ export class StringArrayName extends AbstractName {
         // super must be called before this.isCorrectlyMasked can be called, otherwise typescript will not compile
         IllegalArgumentException.assertCondition(this.isCorrectlyMasked(other), "Components are not correctly masked")
         other.forEach(e => this.components.push(e));
+        MethodFailedException.assertCondition(AbstractName.isCorrectlyMasked(this), "Method failed.");
     }
 
     public clone(): Name {
@@ -62,7 +64,10 @@ export class StringArrayName extends AbstractName {
         IllegalArgumentException.assertCondition(i >= 0 && i < this.components.length, "Illegal index!");
         IllegalArgumentException.assertIsNotNullOrUndefined(c);
         IllegalArgumentException.assertCondition(AbstractName.isComponentCorrectlyMasked(c, this.delimiter), "Component is not correctly masked!");
-        this.components[i] = c;
+        this.tryMethod(() => {
+            this.components[i] = c;
+            MethodFailedException.assertCondition(this.components[i] === c, "Method failed");
+        })
     }
 
     public insert(i: number, c: string) {
@@ -71,29 +76,48 @@ export class StringArrayName extends AbstractName {
         IllegalArgumentException.assertIsNotNullOrUndefined(c);
         IllegalArgumentException.assertCondition(AbstractName.isComponentCorrectlyMasked(c, this.delimiter), "Component is not correctly masked!");
 
-        if (i >= 0 && i < this.components.length)
-            this.components.splice(i, 0, c);
-        else if (i === this.components.length)
-            this.append(c);
+        this.tryMethod(() => {
+            if (i >= 0 && i < this.components.length)
+                this.components.splice(i, 0, c);
+            else if (i === this.components.length)
+                this.append(c);
+            MethodFailedException.assertCondition(this.components[i] === c, "Method failed.");
+        });
     }
 
     public append(c: string) {
         IllegalArgumentException.assertIsNotNullOrUndefined(c);
         IllegalArgumentException.assertCondition(AbstractName.isComponentCorrectlyMasked(c, this.delimiter), "Component is not correctly masked!");
-        this.components.push(c);
+        this.tryMethod(() => {
+            this.components.push(c);
+            MethodFailedException.assertCondition(this.components[this.components.length - 1] === c, "Method failed.");  
+        })
     }
 
     public remove(i: number) {
         IllegalArgumentException.assertIsNotNullOrUndefined(i);
         IllegalArgumentException.assertCondition(i >= 0 && i < this.components.length, "Illegal index!");
-        this.components.splice(i, 1);
+        this.tryMethod(() => {
+            let count : number = this.components.length;
+            this.components.splice(i, 1);
+            MethodFailedException.assertCondition(this.components.length === count - 1, "Method failed");
+        })
     }
 
     public concat(other: Name): void {
-        IllegalArgumentException.assertIsNotNullOrUndefined(other);
-        IllegalArgumentException.assertCondition(other.getDelimiterCharacter() == this.delimiter, "Delimiters did not match!");
-        IllegalArgumentException.assertCondition(AbstractName.isCorrectlyMasked(other), "Passed name is not valid!");
-        super.concat(other);
+       this.tryMethod(() => super.concat(other)); 
+    }
+
+    protected tryMethod(f : Function) : void {
+        let copy : StringArrayName = this.deepCopy() as StringArrayName;
+        try {
+           f(); 
+        } catch (e) {
+            if (e instanceof MethodFailedException) {
+                this.components = copy.components; // Restore state
+            }
+            throw e;
+        }
     }
 
 
