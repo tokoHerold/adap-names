@@ -5,6 +5,7 @@ import { StringName } from "../../../src/adap-b04/names/StringName";
 import { StringArrayName } from "../../../src/adap-b04/names/StringArrayName";
 import { AbstractName } from "../../../src/adap-b04/names/AbstractName";
 import { IllegalArgumentException } from "../../../src/adap-b04/common/IllegalArgumentException";
+import { InvalidStateException } from "../../../src/adap-b04/common/InvalidStateException";
 
 describe("Basic StringName function tests", () => {
   it("test insert", () => {
@@ -125,6 +126,41 @@ describe("Design By Contract Tests", () => {
         testPreconditions(new StringName("csüfauüde", "ü"));
     })
 
+    it("ClassInvariance StringName", () => {
+        let nString : StringName = new StringName("cs.fau.de");
+        (nString as any)["noComponents"] = 4;
+        expect(() => nString.getComponent(0)).toThrow(InvalidStateException);
+
+        nString = new StringName("cs.fau.de");
+        (nString as any)["name"] = "cs\\.fau.de";
+        expect(() => nString.getHashCode()).toThrow(InvalidStateException);
+
+        nString = new StringName("cs.fau.de");
+        (nString as any)["name"] = "cs.s.fau.de";
+        expect(() => nString.isEqual(nString)).toThrow(InvalidStateException);
+        
+        nString = new StringName("cs.fau.de");
+        (nString as any)["name"] = "cs\\s.fau.de";
+        expect(() => nString.isEmpty()).toThrow(InvalidStateException);
+        
+        nString = new StringName("cs.fau.de");
+        (nString as any)["delimiter"] = "hallo";
+        expect(() => nString.asDataString()).toThrow(InvalidStateException);
+    });
+    
+    it("ClassInvariance StringArrayName", () => {
+        let nArray : StringArrayName = new StringArrayName(["cs", "fau", "de"]);
+        (nArray as any)["components"] = ["cs.s", "fau", "de"];
+        expect(() => nArray.getDelimiterCharacter()).toThrow(InvalidStateException);
+
+        nArray = new StringArrayName(["cs", "fau", "de"]);
+        (nArray as any)["components"] = ["cs\\s", "fau", "de"];
+        expect(() => nArray.insert(0, "a")).toThrow(InvalidStateException);
+
+        nArray = new StringArrayName(["cs", "fau", "de"]);
+        (nArray as any)["delimiter"] = "hallo";
+        expect(() => nArray.clone()).toThrow(InvalidStateException);
+    })
 
 
 })
