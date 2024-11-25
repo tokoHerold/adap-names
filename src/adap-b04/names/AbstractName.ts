@@ -170,4 +170,6 @@ export abstract class AbstractName implements Name {
         }
     } 
 
+    protected abstract assertClassInvariance() : void;
+
 }
