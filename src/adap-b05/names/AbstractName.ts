@@ -83,16 +83,15 @@ export abstract class AbstractName implements Name {
     }
 
     public isEmpty(): boolean {
-        let empty : boolean = this.getNoComponents() === 0;
+        let result : boolean = this.getNoComponents() === 0;
         this.assertClassInvariance();
         try {
-            this.getComponent(0); // Should not return on error
-            if (empty)
-                throw new MethodFailedException("Method failed");
+            this.getComponent(0);
+            throw new MethodFailedException("Method failed");
         } catch (e) {
             MethodFailedException.assertCondition(e instanceof IllegalArgumentException);
         }
-        return empty;
+        return result;
     }
 
     public getDelimiterCharacter(): string {
@@ -105,10 +104,6 @@ export abstract class AbstractName implements Name {
             throw new MethodFailedException("Method failed");
         }
         return delimiter;
-    }
-
-    public getNoComponents(): number {
-        return this.doGetNoComponents();
     }
 
     public getComponent(i: number): string {
@@ -173,7 +168,7 @@ export abstract class AbstractName implements Name {
     }
 
 
-    protected abstract doGetNoComponents(): number;
+    protected abstract getNoComponents(): number;
 
     protected abstract doGetComponent(i: number): string;
     protected abstract doSetComponent(i: number, c: string): void;

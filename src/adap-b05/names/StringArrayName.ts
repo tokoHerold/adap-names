@@ -3,23 +3,24 @@ import { Name } from "./Name";
 import { AbstractName } from "./AbstractName";
 import { InvalidStateException } from "../common/InvalidStateException";
 import { IllegalArgumentException } from "../common/IllegalArgumentException";
+import { MethodFailedException } from "../common/MethodFailedException";
 
 export class StringArrayName extends AbstractName {
 
     protected components: string[] = [];
 
-    constructor(source: string[], delimiter?: string) {
+    constructor(other: string[], delimiter?: string) {
         super(delimiter);
-        IllegalArgumentException.assertCondition(this.isValidlyMasked(source));
+        IllegalArgumentException.assertCondition(this.isCorrectlyMasked(other));
 
         let components : string[] = [];
-        source.forEach(e => components.push(e));
+        other.forEach(e => components.push(e));
         this.doSetComponents(components)
         
         this.assertClassInvariance();
     }
 
-    protected doGetNoComponents(): number {
+    public getNoComponents(): number {
         return this.doGetComponents().length;
     }
 
@@ -77,10 +78,7 @@ export class StringArrayName extends AbstractName {
         } catch (e) {
             throw new InvalidStateException("Class invariant not met!");
         }
-        InvalidStateException.assertIsNotNullOrUndefined(this.components);
-        this.doGetComponents().forEach(
-            c => InvalidStateException.assertCondition(this.isComponentCorrectlyMasked(c))
-            );
+        InvalidStateException.assertCondition(this.isValidlyMasked(), "Class invariant not met!");
     }
 
     protected tryMethodOrRollback(f : Function) : void {
