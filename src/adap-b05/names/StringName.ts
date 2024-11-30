@@ -1,6 +1,8 @@
 import { DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "../common/Printable";
 import { Name } from "./Name";
 import { AbstractName } from "./AbstractName";
+import { IllegalArgumentException } from "../common/IllegalArgumentException";
+import { InvalidStateException } from "../common/InvalidStateException";
 
 export class StringName extends AbstractName {
 
@@ -8,64 +10,117 @@ export class StringName extends AbstractName {
     protected noComponents: number = 0;
 
     constructor(source: string, delimiter?: string) {
-        super();
-        throw new Error("needs implementation or deletion");
+        IllegalArgumentException.assertIsNotNullOrUndefined(source);
+        super(delimiter);
+
+        try {
+            this.doSetNoComponents(this.splitAtNonControlCharacters(source, this.doGetDelimiter()).length);
+        } catch {
+            throw new IllegalArgumentException("Input was not correctly masked!");
+        }
+        this.doSetName(source);
+        this.assertClassInvariance();
     }
 
-    public clone(): Name {
-        throw new Error("needs implementation or deletion");
+
+    protected doGetNoComponents(): number {
+        return this.noComponents;
     }
 
-    public asString(delimiter: string = this.delimiter): string {
-        throw new Error("needs implementation or deletion");
+    protected doGetComponent(i: number): string {
+        let components : string[] = this.splitAtNonControlCharacters(this.doGetName(), this.doGetDelimiter());
+        return components[i];
     }
 
-    public asDataString(): string {
-        throw new Error("needs implementation or deletion");
+    protected doSetComponent(i: number, c: string) {
+        let components : string[] = this.splitAtNonControlCharacters(this.doGetName(), this.doGetDelimiter());
+        components[i] = c;
+        this.doSetName(components.join(this.doGetDelimiter()));
     }
 
-    public isEqual(other: Name): boolean {
-        throw new Error("needs implementation or deletion");
+    protected doInsert(i: number, c: string) {
+        if (i === this.doGetNoComponents()) {
+            this.append(c);
+        } else {
+            let components : string[] = this.splitAtNonControlCharacters(this.doGetName(), this.doGetDelimiter());
+            components.splice(i, 0, c);
+            this.doSetName(components.join(this.doGetDelimiter()));
+            this.doSetNoComponents(components.length);
+        }
     }
 
-    public getHashCode(): number {
-        throw new Error("needs implementation or deletion");
+    protected doAppend(c: string) {
+        this.doSetName(this.doGetName() + this.doGetDelimiter() + c);
+        this.doSetNoComponents(this.doGetNoComponents() + 1);
     }
 
-    public isEmpty(): boolean {
-        throw new Error("needs implementation or deletion");
+    protected doRemove(i: number) {
+        let components : string[] = this.splitAtNonControlCharacters(this.doGetName(), this.doGetDelimiter());
+        components.splice(i, 1);
+        this.doSetName(components.join(this.doGetDelimiter()));
+        this.doSetNoComponents(components.length);
     }
 
-    public getDelimiterCharacter(): string {
-        throw new Error("needs implementation or deletion");
+    protected doSetName(name : string) : void {
+        this.name = name;
     }
 
-    public getNoComponents(): number {
-        throw new Error("needs implementation or deletion");
+    protected doGetName() : string {
+        return this.name;
     }
 
-    public getComponent(i: number): string {
-        throw new Error("needs implementation or deletion");
+    protected doSetNoComponents(noComponents : number) : void {
+        this.noComponents = noComponents;
+    }
+    
+    protected tryMethodOrRollback(f : Function) : void {
+        let copy : StringName = this.deepCopy() as StringName;
+        try {
+           f(); 
+        } catch (e) {
+            this.doSetName(copy.doGetName()); // Restore state
+            this.doSetNoComponents(copy.doGetNoComponents());
+            throw e;
+        }
+    }
+    
+    protected splitAtNonControlCharacters(s : string, delimiter : string) : string[] {
+        let result : string[] = [];
+        let lastSplitIndex = 0;
+        for (let i = 0; i < s.length; i++) {
+            let c = s.charAt(i);
+            if (c === ESCAPE_CHARACTER) {
+                // Found escape character - next one must be either delimiter or escape character
+                InvalidStateException.assertCondition(i + 1 !== s.length, "Name is not correctly masked!");
+                let c_next = s.charAt(i+1);
+                if (c_next === ESCAPE_CHARACTER || c_next === delimiter) {
+                    i += 1; // Skip next iteration
+                } else {
+                    throw new InvalidStateException("Name is not correctly masked!")
+                }
+            }
+
+            if (c === delimiter) {
+                // Found delimiter - split string
+                result.push(s.substring(lastSplitIndex, i)); // don't include delimiter
+                lastSplitIndex = i + 1;
+            }
+        }
+        result.push(s.substring(lastSplitIndex)); // Append remainder to split list
+        return result;
     }
 
-    public setComponent(i: number, c: string) {
-        throw new Error("needs implementation or deletion");
+    protected assertClassInvariance(): void {
+        try {
+            this.assertValidDelimiter(this.delimiter);
+        } catch (e) {
+            if (e instanceof IllegalArgumentException) throw new InvalidStateException("Class invariant not met!");
+            throw e;
+        }
+        let components : string[] = this.splitAtNonControlCharacters(this.doGetName(), this.doGetDelimiter());
+        for (let c of components) {
+            InvalidStateException.assertCondition(this.isComponentCorrectlyMasked(c), "Class invariant not met!");
+        }
+        InvalidStateException.assertCondition(components.length === this.noComponents, "Class invariant not met")
     }
-
-    public insert(i: number, c: string) {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public append(c: string) {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public remove(i: number) {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public concat(other: Name): void {
-        throw new Error("needs implementation or deletion");
-    }
-
 }
