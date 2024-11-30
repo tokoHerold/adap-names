@@ -2,7 +2,7 @@ import { IllegalArgumentException } from "../common/IllegalArgumentException";
 import { DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "../common/Printable";
 import { Name } from "./Name";
 import { StringName } from "./StringName";
-import { MethodFailureException } from "../common/MethodFailureException";
+import { MethodFailedException } from "../common/MethodFailedException";
 
 export abstract class AbstractName implements Name {
 
@@ -29,7 +29,7 @@ export abstract class AbstractName implements Name {
             .join(delimiter);
         
         if (this.getNoComponents() > 1) 
-            MethodFailureException.assertCondition(result !== "", "Method failed.");
+            MethodFailedException.assertCondition(result !== "", "Method failed.");
         return result;
     }
 
@@ -78,16 +78,16 @@ export abstract class AbstractName implements Name {
     public isEmpty(): boolean {
         let result : boolean = this.getNoComponents() === 0;
         if (result === true) {
-            MethodFailureException.assertCondition(this.asDataString() === "", "Method failed.");
+            MethodFailedException.assertCondition(this.asDataString() === "", "Method failed.");
         } else {
-            MethodFailureException.assertCondition(this.asDataString().length > 0, "Method failed.");
+            MethodFailedException.assertCondition(this.asDataString().length > 0, "Method failed.");
         }
         return result;
     }
 
     public getDelimiterCharacter(): string {
         let delimiter = this.delimiter;
-        MethodFailureException.assertCondition(delimiter == this.delimiter, "Method failed");
+        MethodFailedException.assertCondition(delimiter == this.delimiter, "Method failed");
         return delimiter;
     }
 
@@ -109,7 +109,7 @@ export abstract class AbstractName implements Name {
         for (let i = 0; i < other.getNoComponents(); i++) {
             this.append(other.getComponent(i));
         }
-        MethodFailureException.assertCondition(this.getNoComponents() === noComponents, "Method failed.");
+        MethodFailedException.assertCondition(this.getNoComponents() === noComponents, "Method failed.");
     }
     
     protected getComponents() : string[] {
@@ -164,9 +164,9 @@ export abstract class AbstractName implements Name {
     protected assertDataSting(s : string) : void {
         try {
             let name = new StringName(s, DEFAULT_DELIMITER);
-            MethodFailureException.assertCondition(name.getNoComponents() === this.getNoComponents(), "Data String corrupt");
+            MethodFailedException.assertCondition(name.getNoComponents() === this.getNoComponents(), "Data String corrupt");
         } catch {
-            throw new MethodFailureException("Data String corrupt");
+            throw new MethodFailedException("Data String corrupt");
         }
     } 
 

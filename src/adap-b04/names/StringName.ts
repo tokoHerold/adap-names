@@ -3,7 +3,7 @@ import { Name } from "./Name";
 import { AbstractName } from "./AbstractName";
 import { InvalidStateException } from "../common/InvalidStateException";
 import { IllegalArgumentException } from "../common/IllegalArgumentException";
-import { MethodFailureException } from "../common/MethodFailureException";
+import { MethodFailedException } from "../common/MethodFailedException";
 
 export class StringName extends AbstractName {
 
@@ -19,7 +19,7 @@ export class StringName extends AbstractName {
             throw new IllegalArgumentException("Input was not correctly masked!");
         }
         this.name = other;
-        MethodFailureException.assertCondition(AbstractName.isCorrectlyMasked(this), "Method failed");
+        MethodFailedException.assertCondition(AbstractName.isCorrectlyMasked(this), "Method failed");
         this.assertClassInvariance();
     }
 
@@ -85,7 +85,7 @@ export class StringName extends AbstractName {
             let components = this.splitAtNonControlCharacters(this.name, this.delimiter);
             components[i] = c;
             this.name = components.join(this.delimiter);
-            MethodFailureException.assertCondition(this.getComponent(i) === c, "Method failed.");
+            MethodFailedException.assertCondition(this.getComponent(i) === c, "Method failed.");
         });
         this.assertClassInvariance();
     }
@@ -106,8 +106,8 @@ export class StringName extends AbstractName {
             } else if (i === this.noComponents) {
                 this.append(c);
             }
-            MethodFailureException.assertCondition(this.noComponents === noComponents + 1, "Method failed");
-            MethodFailureException.assertCondition(this.getComponent(i) === c, "MethodFailed");
+            MethodFailedException.assertCondition(this.noComponents === noComponents + 1, "Method failed");
+            MethodFailedException.assertCondition(this.getComponent(i) === c, "MethodFailed");
         });
         this.assertClassInvariance();
     }
@@ -120,7 +120,7 @@ export class StringName extends AbstractName {
             let oldLen : number = this.name.length;
             this.name += this.delimiter + c;
             this.noComponents += 1;
-            MethodFailureException.assertCondition(this.name.length === oldLen + c.length + 1, "Method failed")
+            MethodFailedException.assertCondition(this.name.length === oldLen + c.length + 1, "Method failed")
         });
         this.assertClassInvariance();
     }
@@ -136,7 +136,7 @@ export class StringName extends AbstractName {
             components.splice(i, 1);
             this.name = components.join(this.delimiter);
             this.noComponents = components.length;
-            MethodFailureException.assertCondition(this.name.length <= oldLen - len && this.name.length >= oldLen - len - 1, "Method failed");
+            MethodFailedException.assertCondition(this.name.length <= oldLen - len && this.name.length >= oldLen - len - 1, "Method failed");
         });
         this.assertClassInvariance();
     }
@@ -152,7 +152,7 @@ export class StringName extends AbstractName {
         try {
            f(); 
         } catch (e) {
-            if (e instanceof MethodFailureException) {
+            if (e instanceof MethodFailedException) {
                 this.name = copy.name; // Restore state
                 this.noComponents = copy.noComponents;
             }
