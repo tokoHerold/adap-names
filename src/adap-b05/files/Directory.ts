@@ -40,7 +40,9 @@ export class Directory extends Node {
 
             this.assertClassInvariants();
         } catch (e : any) {
-            throw new ServiceFailureException("A severe error occurred!", e);
+            if (!(e instanceof ServiceFailureException)) // Otherwise, the wrong trigger is returned
+                throw new ServiceFailureException("A severe error occurred!", e);
+            throw e;
         }
         return results;
     }

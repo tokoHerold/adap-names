@@ -72,8 +72,8 @@ export class Node {
         try {
             if (bn === this.getBaseName()) {
                 result.add(this);
-                this.assertClassInvariants();
             }
+            this.assertClassInvariants();
         } catch (e : any) {
             throw new ServiceFailureException("A severe error occured!", e);
         }

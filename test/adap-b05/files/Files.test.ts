@@ -77,7 +77,7 @@ describe("Buggy setup test", () => {
       let tx: Exception = ex.getTrigger();
       expect(tx instanceof InvalidStateException).toBeTruthy();
     }
-    expect(threwException);
+    expect(threwException).toBeTruthy();
   });
 });
 
@@ -148,7 +148,6 @@ describe("File precondition test", () => {
         let w = new File("Windows", boot);
         
         // expect(() => w.move(home)).toThrow(IllegalArgumentException); This is now fixed
-        boot.add(w);
         expect(w.move(home), "This should not throw an error!");
         expect(() => w.move(null as any)).toThrow(IllegalArgumentException);
         expect(() => boot.remove(home)).toThrow(IllegalArgumentException);
@@ -160,9 +159,7 @@ describe("File precondition test", () => {
         let boot : Directory = new Directory("boot", root);
         let home : Directory = new Directory("home", root);
         let efi = new File("efi", boot);
-        boot.add(efi);
         let mnt = new Link("efi", home);
-        home.add(efi);
 
         expect(() => mnt.rename("ife")).toThrow(IllegalArgumentException);
         expect(() => mnt.getBaseName()).toThrow(IllegalArgumentException);
