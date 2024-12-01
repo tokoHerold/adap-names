@@ -7,10 +7,12 @@ import { ServiceFailureException } from "../../../src/adap-b05/common/ServiceFai
 import { StringName } from "../../../src/adap-b05/names/StringName";
 
 import { Node } from "../../../src/adap-b05/files/Node";
+import { Link } from "../../../src/adap-b05/files/Link";
 import { File } from "../../../src/adap-b05/files/File";
 import { BuggyFile } from "../../../src/adap-b05/files/BuggyFile";
 import { Directory } from "../../../src/adap-b05/files/Directory";
 import { RootNode } from "../../../src/adap-b05/files/RootNode";
+import { IllegalArgumentException } from "../../../src/adap-b05/common/IllegalArgumentException";
 
 function createFileSystem(): RootNode {
   let rn: RootNode = new RootNode();
@@ -74,4 +76,44 @@ describe("Buggy setup test", () => {
     // }
     // expect(threwException);
   });
+});
+
+describe("File precondition test", () => {
+   it("RootNode", () => {
+        let root1 : RootNode = new RootNode();
+        let root2 : Directory = new RootNode();
+        expect(() => root1.move(root2)).toThrow(IllegalArgumentException);
+   });
+
+   it("Directory", () => {
+        let root : RootNode = new RootNode();
+        let boot : Directory = new Directory("boot", root);
+        let home : Directory = new Directory("home", root);
+        let w = new File("Windows", boot);
+        
+        // expect(() => w.move(home)).toThrow(IllegalArgumentException); This is now fixed
+        boot.add(w);
+        expect(w.move(home), "This should not throw an error!");
+        expect(() => w.move(null as any)).toThrow(IllegalArgumentException);
+        expect(() => boot.remove(home)).toThrow(IllegalArgumentException);
+        expect(() => boot.remove(null as any)).toThrow(IllegalArgumentException);
+    });
+
+    it("Link", () => {
+        let root : RootNode = new RootNode();
+        let boot : Directory = new Directory("boot", root);
+        let home : Directory = new Directory("home", root);
+        let efi = new File("efi", boot);
+        boot.add(efi);
+        let mnt = new Link("efi", home);
+        home.add(efi);
+
+        expect(() => mnt.rename("ife")).toThrow(IllegalArgumentException);
+        expect(() => mnt.getBaseName()).toThrow(IllegalArgumentException);
+        expect(() => mnt.setTargetNode((null as any))).toThrow(IllegalArgumentException);
+        mnt.setTargetNode(efi)
+        mnt.getBaseName(); // Should not throw error now
+        mnt.rename("ife");
+        expect(efi.getBaseName()).toBe("ife");     
+    })
 });

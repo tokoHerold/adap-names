@@ -10,9 +10,12 @@ export class Node {
     protected parentNode: Directory;
 
     constructor(bn: string, pn: Directory) {
+        this.assertIsValidBaseName(bn, ExceptionType.PRECONDITION);
+        IllegalArgumentException.assertIsNotNullOrUndefined(pn);
         this.doSetBaseName(bn);
         this.parentNode = pn; // why oh why do I have to set this
         this.initialize(pn);
+        this.assertClassInvariants();
     }
 
     protected initialize(pn: Directory): void {
@@ -21,9 +24,11 @@ export class Node {
     }
 
     public move(to: Directory): void {
-        this.parentNode.removeChildNode(this);
-        to.addChildNode(this);
+        IllegalArgumentException.assertIsNotNullOrUndefined(to);
+        this.parentNode.remove(this);
+        to.add(this);
         this.parentNode = to;
+        this.assertClassInvariants();
     }
 
     public getFullName(): Name {
@@ -41,7 +46,9 @@ export class Node {
     }
 
     public rename(bn: string): void {
+        this.assertIsValidBaseName(bn, ExceptionType.PRECONDITION);
         this.doSetBaseName(bn);
+        this.assertClassInvariants();
     }
 
     protected doSetBaseName(bn: string): void {
@@ -57,7 +64,18 @@ export class Node {
      * @param bn basename of node being searched for
      */
     public findNodes(bn: string): Set<Node> {
+        this.assertIsValidBaseName(bn, ExceptionType.PRECONDITION);
         throw new Error("needs implementation or deletion");
+    }
+
+    protected assertClassInvariants(): void {
+        const bn: string = this.doGetBaseName();
+        this.assertIsValidBaseName(bn, ExceptionType.CLASS_INVARIANT);
+    }
+
+    protected assertIsValidBaseName(bn: string, et: ExceptionType): void {
+        const condition: boolean = typeof bn === "string" && (bn != "");
+        AssertionDispatcher.dispatch(et, condition, "invalid base name");
     }
 
 }

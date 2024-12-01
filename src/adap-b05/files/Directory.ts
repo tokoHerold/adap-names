@@ -1,3 +1,4 @@
+import { IllegalArgumentException } from "../common/IllegalArgumentException";
 import { Node } from "./Node";
 
 export class Directory extends Node {
@@ -8,16 +9,17 @@ export class Directory extends Node {
         super(bn, pn);
     }
 
-    public hasChildNode(cn: Node): boolean {
-        return this.childNodes.has(cn);
-    }
-
-    public addChildNode(cn: Node): void {
+    public add(cn: Node): void {
+        IllegalArgumentException.assertIsNotNullOrUndefined(cn);
         this.childNodes.add(cn);
+        this.assertClassInvariants();
     }
 
-    public removeChildNode(cn: Node): void {
+    public remove(cn: Node): void {
+        IllegalArgumentException.assertIsNotNullOrUndefined(cn);
+        IllegalArgumentException.assertCondition(this.childNodes.has(cn));
         this.childNodes.delete(cn); // Yikes! Should have been called remove
+        this.assertClassInvariants();
     }
 
 }

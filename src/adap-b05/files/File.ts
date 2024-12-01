@@ -1,6 +1,7 @@
 import { Node } from "./Node";
 import { Directory } from "./Directory";
 import { MethodFailedException } from "../common/MethodFailedException";
+import { IllegalArgumentException } from "../common/IllegalArgumentException";
 
 enum FileState {
     OPEN,
@@ -17,10 +18,13 @@ export class File extends Node {
     }
 
     public open(): void {
+        IllegalArgumentException.assertCondition(this.doGetFileState() != FileState.OPEN);
         // do something
+        this.assertClassInvariants();
     }
 
     public read(noBytes: number): Int8Array {
+        IllegalArgumentException.assertCondition(this.doGetFileState() == FileState.OPEN);
         let result: Int8Array = new Int8Array(noBytes);
         // do something
 
@@ -36,6 +40,7 @@ export class File extends Node {
             }
         }
 
+        this.assertClassInvariants();
         return result;
     }
 
@@ -44,7 +49,9 @@ export class File extends Node {
     }
 
     public close(): void {
+        IllegalArgumentException.assertCondition(this.doGetFileState() != FileState.CLOSED);
         // do something
+        this.assertClassInvariants();
     }
 
     protected doGetFileState(): FileState {
