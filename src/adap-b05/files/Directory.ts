@@ -1,5 +1,7 @@
 import { ExceptionType } from "../common/AssertionDispatcher";
 import { IllegalArgumentException } from "../common/IllegalArgumentException";
+import { InvalidStateException } from "../common/InvalidStateException";
+import { MethodFailedException } from "../common/MethodFailedException";
 import { ServiceFailureException } from "../common/ServiceFailureException";
 import { Node } from "./Node";
 
@@ -40,7 +42,7 @@ export class Directory extends Node {
 
             this.assertClassInvariants();
         } catch (e : any) {
-            if (!(e instanceof ServiceFailureException)) // Otherwise, the wrong trigger is returned
+            if (e instanceof MethodFailedException || e instanceof InvalidStateException)
                 throw new ServiceFailureException("A severe error occurred!", e);
             throw e;
         }
