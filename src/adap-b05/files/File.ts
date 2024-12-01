@@ -36,6 +36,7 @@ export class File extends Node {
                 tries++;
                 if (ex instanceof MethodFailedException) {
                     // Oh no! What @todo?!
+                    MethodFailedException.assertCondition(tries < 3);
                 }
             }
         }

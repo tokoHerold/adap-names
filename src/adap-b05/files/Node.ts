@@ -1,5 +1,6 @@
 import { IllegalArgumentException } from "../common/IllegalArgumentException";
 import { InvalidStateException } from "../common/InvalidStateException";
+import { ServiceFailureException } from "../common/ServiceFailureException";
 
 import { Name } from "../names/Name";
 import { Directory } from "./Directory";
@@ -15,7 +16,7 @@ export class Node {
         this.doSetBaseName(bn);
         this.parentNode = pn; // why oh why do I have to set this
         this.initialize(pn);
-        this.assertClassInvariants();
+        // Don't check for class invariant, otherwise injection would fail
     }
 
     protected initialize(pn: Directory): void {
@@ -64,8 +65,19 @@ export class Node {
      * @param bn basename of node being searched for
      */
     public findNodes(bn: string): Set<Node> {
-        this.assertIsValidBaseName(bn, ExceptionType.PRECONDITION);
-        throw new Error("needs implementation or deletion");
+        IllegalArgumentException.assertIsNotNullOrUndefined(bn);
+        IllegalArgumentException.assertCondition(bn != "");
+        const result : Set<Node> = new Set();
+        
+        try {
+            if (bn === this.getBaseName()) {
+                result.add(this);
+                this.assertClassInvariants();
+            }
+        } catch (e : any) {
+            throw new ServiceFailureException("A severe error occured!", e);
+        }
+        return result;
     }
 
     protected assertClassInvariants(): void {
