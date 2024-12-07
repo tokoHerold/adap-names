@@ -18,13 +18,13 @@ export class File extends Node {
     }
 
     public open(): void {
-        IllegalArgumentException.assertCondition(this.doGetFileState() != FileState.OPEN);
+        IllegalArgumentException.assert(this.doGetFileState() != FileState.OPEN);
         // do something
         this.assertClassInvariants();
     }
 
     public read(noBytes: number): Int8Array {
-        IllegalArgumentException.assertCondition(this.doGetFileState() == FileState.OPEN);
+        IllegalArgumentException.assert(this.doGetFileState() == FileState.OPEN);
         let result: Int8Array = new Int8Array(noBytes);
         // do something
 
@@ -36,7 +36,7 @@ export class File extends Node {
                 tries++;
                 if (ex instanceof MethodFailedException) {
                     // Oh no! What @todo?!
-                    MethodFailedException.assertCondition(tries < 3);
+                    MethodFailedException.assert(tries < 3);
                 }
             }
         }
@@ -50,7 +50,7 @@ export class File extends Node {
     }
 
     public close(): void {
-        IllegalArgumentException.assertCondition(this.doGetFileState() != FileState.CLOSED);
+        IllegalArgumentException.assert(this.doGetFileState() != FileState.CLOSED);
         // do something
         this.assertClassInvariants();
     }

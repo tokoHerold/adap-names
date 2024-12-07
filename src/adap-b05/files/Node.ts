@@ -1,3 +1,4 @@
+import { Exception } from "../common/Exception";
 import { IllegalArgumentException } from "../common/IllegalArgumentException";
 import { InvalidStateException } from "../common/InvalidStateException";
 import { ServiceFailureException } from "../common/ServiceFailureException";
@@ -11,8 +12,7 @@ export class Node {
     protected parentNode: Directory;
 
     constructor(bn: string, pn: Directory) {
-        this.assertIsValidBaseName(bn, ExceptionType.PRECONDITION);
-        IllegalArgumentException.assertIsNotNullOrUndefined(pn);
+        IllegalArgumentException.assert(pn != null && pn != undefined);
         this.doSetBaseName(bn);
         this.parentNode = pn; // why oh why do I have to set this
         this.initialize(pn);
@@ -21,11 +21,11 @@ export class Node {
 
     protected initialize(pn: Directory): void {
         this.parentNode = pn;
-        this.parentNode.addChildNode(this);
+        this.parentNode.add(this);
     }
 
     public move(to: Directory): void {
-        IllegalArgumentException.assertIsNotNullOrUndefined(to);
+        IllegalArgumentException.assert(to != null && to != undefined);
         this.parentNode.remove(this);
         to.add(this);
         this.parentNode = to;
@@ -47,7 +47,7 @@ export class Node {
     }
 
     public rename(bn: string): void {
-        this.assertIsValidBaseName(bn, ExceptionType.PRECONDITION);
+        this.assertIsValidBaseName(bn, new IllegalArgumentException("Illegal base name"));
         this.doSetBaseName(bn);
         this.assertClassInvariants();
     }
@@ -65,8 +65,8 @@ export class Node {
      * @param bn basename of node being searched for
      */
     public findNodes(bn: string): Set<Node> {
-        IllegalArgumentException.assertIsNotNullOrUndefined(bn);
-        IllegalArgumentException.assertCondition(bn != "");
+        IllegalArgumentException.assert(bn != null && bn != undefined);
+        IllegalArgumentException.assert(bn != "");
         const result : Set<Node> = new Set();
         
         try {
@@ -82,12 +82,13 @@ export class Node {
 
     protected assertClassInvariants(): void {
         const bn: string = this.doGetBaseName();
-        this.assertIsValidBaseName(bn, ExceptionType.CLASS_INVARIANT);
+        this.assertIsValidBaseName(bn, new InvalidStateException("Class invariant failed."));
     }
 
-    protected assertIsValidBaseName(bn: string, et: ExceptionType): void {
-        const condition: boolean = typeof bn === "string" && (bn != "");
-        AssertionDispatcher.dispatch(et, condition, "invalid base name");
+    protected assertIsValidBaseName(bn: string, ex: Exception): void {
+        if (!(typeof bn === "string" && (bn != ""))) {
+           throw ex;
+        }
     }
 
 }

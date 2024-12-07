@@ -17,7 +17,7 @@ export abstract class AbstractName implements Name {
         let copy = Object.create(this);
 
         this.assertClassInvariance();
-        MethodFailedException.assertCondition(this.isEqual(copy));
+        MethodFailedException.assert(this.isEqual(copy));
 
         return copy;
     }
@@ -31,8 +31,8 @@ export abstract class AbstractName implements Name {
         
         this.assertClassInvariance();
         if (this.getNoComponents() > 1) 
-            MethodFailedException.assertCondition(result !== "");
-        MethodFailedException.assertCondition(!result.includes("/"))
+            MethodFailedException.assert(result !== "");
+        MethodFailedException.assert(!result.includes("/"))
         return result;
     }
 
@@ -56,8 +56,8 @@ export abstract class AbstractName implements Name {
     }
 
     public isEqual(other: Name): boolean {
-        IllegalArgumentException.assertIsNotNullOrUndefined(other);
-        IllegalArgumentException.assertCondition(this.isCorrectlyMasked(other), "Name is not correctly masked")
+        IllegalArgumentException.assert(other != null && other != undefined);
+        IllegalArgumentException.assert(this.isCorrectlyMasked(other), "Name is not correctly masked")
         if (this === other) return true;
         if (this.getDelimiterCharacter() !== other.getDelimiterCharacter()) return false;
         let noComponents = this.getNoComponents();
@@ -85,11 +85,13 @@ export abstract class AbstractName implements Name {
     public isEmpty(): boolean {
         let result : boolean = this.getNoComponents() === 0;
         this.assertClassInvariance();
-        try {
-            this.getComponent(0);
-            throw new MethodFailedException("Method failed");
-        } catch (e) {
-            MethodFailedException.assertCondition(e instanceof IllegalArgumentException);
+        if (result) {
+            try {
+                this.getComponent(0);
+                throw new MethodFailedException("Method failed");
+            } catch (e) {
+                MethodFailedException.assert(e instanceof IllegalArgumentException);
+            }
         }
         return result;
     }
@@ -97,13 +99,17 @@ export abstract class AbstractName implements Name {
     public getDelimiterCharacter(): string {
         let delimiter = this.doGetDelimiter();
         this.assertClassInvariance();
-        MethodFailedException.assertCondition(delimiter == this.doGetDelimiter(), "Method failed");
+        MethodFailedException.assert(delimiter == this.doGetDelimiter(), "Method failed");
         try {
             this.assertValidDelimiter(delimiter);
         } catch {
             throw new MethodFailedException("Method failed");
         }
         return delimiter;
+    }
+
+    public getNoComponents(): number {
+        return this.doGetNoComponents();   
     }
 
     public getComponent(i: number): string {
@@ -113,7 +119,7 @@ export abstract class AbstractName implements Name {
 
         this.assertClassInvariance();
 
-        MethodFailedException.assertCondition(this.isComponentCorrectlyMasked(component));
+        MethodFailedException.assert(this.isComponentCorrectlyMasked(component));
         return component;
     } 
 
@@ -125,7 +131,7 @@ export abstract class AbstractName implements Name {
             this.doSetComponent(i, c);
             
             this.assertClassInvariance();
-            MethodFailedException.assertCondition(this.getComponent(i) === c);
+            MethodFailedException.assert(this.getComponent(i) === c);
         })
     }
     
@@ -138,7 +144,7 @@ export abstract class AbstractName implements Name {
             this.doInsert(i, c);
             
             this.assertClassInvariance();
-            MethodFailedException.assertCondition(this.getNoComponents() === oldNo + 1);
+            MethodFailedException.assert(this.getNoComponents() === oldNo + 1);
         });
     }
 
@@ -150,7 +156,7 @@ export abstract class AbstractName implements Name {
             this.doAppend(c);
 
             this.assertClassInvariance();
-            MethodFailedException.assertCondition(this.getNoComponents() === oldNo + 1);
+            MethodFailedException.assert(this.getNoComponents() === oldNo + 1);
         });
     }
 
@@ -163,12 +169,12 @@ export abstract class AbstractName implements Name {
             this.doRemove(i);
 
             this.assertClassInvariance();
-            MethodFailedException.assertCondition(this.getNoComponents() === oldNo - 1);
+            MethodFailedException.assert(this.getNoComponents() === oldNo - 1);
         });
     }
 
 
-    protected abstract getNoComponents(): number;
+    protected abstract doGetNoComponents(): number;
 
     protected abstract doGetComponent(i: number): string;
     protected abstract doSetComponent(i: number, c: string): void;
@@ -178,16 +184,16 @@ export abstract class AbstractName implements Name {
     protected abstract doRemove(i: number): void;
 
     public concat(other: Name): void {
-        IllegalArgumentException.assertIsNotNullOrUndefined(other);
-        IllegalArgumentException.assertCondition(other.getDelimiterCharacter() == this.doGetDelimiter(), "Delimiters did not match!");
-        IllegalArgumentException.assertCondition(this.isCorrectlyMasked(other), "Passed name is not valid!");
+        IllegalArgumentException.assert(other != null && other != undefined);
+        IllegalArgumentException.assert(other.getDelimiterCharacter() == this.doGetDelimiter(), "Delimiters did not match!");
+        IllegalArgumentException.assert(this.isCorrectlyMasked(other), "Passed name is not valid!");
         let expectedNoComponents = this.getNoComponents() + other.getNoComponents();
 
         for (let i = 0; i < other.getNoComponents(); i++) {
             this.append(other.getComponent(i));
         }
         this.assertClassInvariance();
-        MethodFailedException.assertCondition(this.getNoComponents() === expectedNoComponents, "Method failed.");
+        MethodFailedException.assert(this.getNoComponents() === expectedNoComponents, "Method failed.");
     }
 
     protected doSetDelimiter(delimiter : string) {
@@ -199,31 +205,31 @@ export abstract class AbstractName implements Name {
     }
 
     protected assertValidDelimiter(c : string) {
-        IllegalArgumentException.assertIsNotNullOrUndefined(c);
-        IllegalArgumentException.assertCondition(typeof c === "string", "Delimiter must be a string");
-        IllegalArgumentException.assertCondition(c.length === 1, "Delimiter must be exactly one character");
-        IllegalArgumentException.assertCondition(c !== ESCAPE_CHARACTER, "Delimiter cannot be the escape character!");
+        IllegalArgumentException.assert(c != null && c != undefined);
+        IllegalArgumentException.assert(typeof c === "string", "Delimiter must be a string");
+        IllegalArgumentException.assert(c.length === 1, "Delimiter must be exactly one character");
+        IllegalArgumentException.assert(c !== ESCAPE_CHARACTER, "Delimiter cannot be the escape character!");
     }
 
     protected assertDataSting(s : string) : void {
         try {
             let name = new StringName(s, DEFAULT_DELIMITER);
-            MethodFailedException.assertCondition(name.getNoComponents() === this.getNoComponents(), "Data String corrupt");
+            MethodFailedException.assert(name.getNoComponents() === this.getNoComponents(), "Data String corrupt");
         } catch {
             throw new MethodFailedException("Data String corrupt");
         }
     }
 
     protected assertValidIndex(i : number, inclusive : boolean = false) {
-        IllegalArgumentException.assertIsNotNullOrUndefined(i);
-        IllegalArgumentException.assertCondition(inclusive || (i >= 0 && i < this.getNoComponents()));
-        IllegalArgumentException.assertCondition(!inclusive || (i >= 0 && i <= this.getNoComponents()));
-        IllegalArgumentException.assertCondition(Number.isInteger(i));
+        IllegalArgumentException.assert(i != null && i != undefined);
+        IllegalArgumentException.assert(inclusive || (i >= 0 && i < this.getNoComponents()));
+        IllegalArgumentException.assert(!inclusive || (i >= 0 && i <= this.getNoComponents()));
+        IllegalArgumentException.assert(Number.isInteger(i));
     }
 
     protected assertisProperlyMasked(c : string) {
-        IllegalArgumentException.assertIsNotNullOrUndefined(c);
-        IllegalArgumentException.assertCondition(this.isComponentCorrectlyMasked(c, this.doGetDelimiter()));
+        IllegalArgumentException.assert(c != null && c != undefined);
+        IllegalArgumentException.assert(this.isComponentCorrectlyMasked(c, this.doGetDelimiter()));
     }
 
     protected getComponents() : string[] {

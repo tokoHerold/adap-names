@@ -1,4 +1,3 @@
-import { ExceptionType } from "../common/AssertionDispatcher";
 import { IllegalArgumentException } from "../common/IllegalArgumentException";
 import { InvalidStateException } from "../common/InvalidStateException";
 import { MethodFailedException } from "../common/MethodFailedException";
@@ -14,21 +13,21 @@ export class Directory extends Node {
     }
 
     public add(cn: Node): void {
-        IllegalArgumentException.assertIsNotNullOrUndefined(cn);
+        IllegalArgumentException.assert(cn != null && cn != undefined);
         this.childNodes.add(cn);
         this.assertClassInvariants();
     }
 
     public remove(cn: Node): void {
-        IllegalArgumentException.assertIsNotNullOrUndefined(cn);
-        IllegalArgumentException.assertCondition(this.childNodes.has(cn));
+        IllegalArgumentException.assert(cn != null && cn != undefined);
+        IllegalArgumentException.assert(this.childNodes.has(cn));
         this.childNodes.delete(cn); // Yikes! Should have been called remove
         this.assertClassInvariants();
     }
 
     public findNodes(bn: string): Set<Node> {
-        IllegalArgumentException.assertIsNotNullOrUndefined(bn);
-        IllegalArgumentException.assertCondition(bn != "");
+        IllegalArgumentException.assert(bn != null && bn != undefined);
+        IllegalArgumentException.assert(bn != "");
        
         const results : Set<Node> = new Set();
 

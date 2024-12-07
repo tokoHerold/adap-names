@@ -13,9 +13,6 @@ import { BuggyFile } from "../../../src/adap-b05/files/BuggyFile";
 import { Directory } from "../../../src/adap-b05/files/Directory";
 import { RootNode } from "../../../src/adap-b05/files/RootNode";
 import { IllegalArgumentException } from "../../../src/adap-b05/common/IllegalArgumentException";
-import { Exception } from "../../../src/adap-b05/common/Exception";
-import { ServiceFailureException } from "../../../src/adap-b05/common/ServiceFailureException";
-import { InvalidStateException } from "../../../src/adap-b05/common/InvalidStateException";
 
 function createFileSystem(): RootNode {
   let rn: RootNode = new RootNode();

@@ -10,7 +10,7 @@ export class StringName extends AbstractName {
     protected noComponents: number = 0;
 
     constructor(source: string, delimiter?: string) {
-        IllegalArgumentException.assertIsNotNullOrUndefined(source);
+        IllegalArgumentException.assert(source != null && source != undefined);
         super(delimiter);
 
         try {
@@ -91,7 +91,7 @@ export class StringName extends AbstractName {
             let c = s.charAt(i);
             if (c === ESCAPE_CHARACTER) {
                 // Found escape character - next one must be either delimiter or escape character
-                InvalidStateException.assertCondition(i + 1 !== s.length, "Name is not correctly masked!");
+                InvalidStateException.assert(i + 1 !== s.length, "Name is not correctly masked!");
                 let c_next = s.charAt(i+1);
                 if (c_next === ESCAPE_CHARACTER || c_next === delimiter) {
                     i += 1; // Skip next iteration
@@ -119,8 +119,8 @@ export class StringName extends AbstractName {
         }
         let components : string[] = this.splitAtNonControlCharacters(this.doGetName(), this.doGetDelimiter());
         for (let c of components) {
-            InvalidStateException.assertCondition(this.isComponentCorrectlyMasked(c), "Class invariant not met!");
+            InvalidStateException.assert(this.isComponentCorrectlyMasked(c), "Class invariant not met!");
         }
-        InvalidStateException.assertCondition(components.length === this.noComponents, "Class invariant not met")
+        InvalidStateException.assert(components.length === this.noComponents, "Class invariant not met")
     }
 }
