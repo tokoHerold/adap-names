@@ -11,13 +11,13 @@ export class Directory extends Node {
 
     public add(cn: Node): void {
         // Set automatically checks for duplicates
-        IllegalArgumentException.assertIsNotNullOrUndefined(cn, "Child node was null or undefined!");
+        IllegalArgumentException.assert(cn != null && cn != undefined, "Child node was null or undefined!");
         this.childNodes.add(cn);
     }
 
     public remove(cn: Node): void {
-        IllegalArgumentException.assertIsNotNullOrUndefined(cn, "Child node was null or undefined!");
-        IllegalArgumentException.assertCondition(this.childNodes.has(cn), "Child node does not exist in directory!");
+        IllegalArgumentException.assert(cn != null && cn != undefined, "Child node was null or undefined!");
+        IllegalArgumentException.assert(this.childNodes.has(cn), "Child node does not exist in directory!");
         this.childNodes.delete(cn); // Yikes! Should have been called remove
     }
 

@@ -11,7 +11,7 @@ export class StringName extends AbstractName {
     protected noComponents: number = 0;
 
     constructor(other: string, delimiter?: string) {
-        IllegalArgumentException.assertIsNotNullOrUndefined(other);
+        IllegalArgumentException.assert(other != null && other != undefined);
         super(delimiter);
         try {
             this.noComponents = this.splitAtNonControlCharacters(other, this.delimiter).length
@@ -19,7 +19,7 @@ export class StringName extends AbstractName {
             throw new IllegalArgumentException("Input was not correctly masked!");
         }
         this.name = other;
-        MethodFailedException.assertCondition(AbstractName.isCorrectlyMasked(this), "Method failed");
+        MethodFailedException.assert(AbstractName.isCorrectlyMasked(this), "Method failed");
         this.assertClassInvariance();
     }
 
@@ -70,32 +70,32 @@ export class StringName extends AbstractName {
 
     public getComponent(i: number): string {
         this.assertClassInvariance();
-        IllegalArgumentException.assertIsNotNullOrUndefined(i);
-        IllegalArgumentException.assertCondition(i >= 0 && i < this.noComponents, "Illegal index!");
+        IllegalArgumentException.assert(i != null && i != undefined);
+        IllegalArgumentException.assert(i >= 0 && i < this.noComponents, "Illegal index!");
         return this.splitAtNonControlCharacters(this.name, this.delimiter)[i];
     }
 
     public setComponent(i: number, c: string) {
         this.assertClassInvariance();
-        IllegalArgumentException.assertIsNotNullOrUndefined(i);
-        IllegalArgumentException.assertCondition(i >= 0 && i < this.noComponents, "Illegal index!");
-        IllegalArgumentException.assertIsNotNullOrUndefined(c);
-        IllegalArgumentException.assertCondition(AbstractName.isComponentCorrectlyMasked(c, this.delimiter), "Component is not correctly masked!");
+        IllegalArgumentException.assert( i != null && i != undefined);(i);
+        IllegalArgumentException.assert(i >= 0 && i < this.noComponents, "Illegal index!");
+        IllegalArgumentException.assert( c != null && c != undefined);
+        IllegalArgumentException.assert(AbstractName.isComponentCorrectlyMasked(c, this.delimiter), "Component is not correctly masked!");
         this.tryMethodOrRestore(() => {
             let components = this.splitAtNonControlCharacters(this.name, this.delimiter);
             components[i] = c;
             this.name = components.join(this.delimiter);
-            MethodFailedException.assertCondition(this.getComponent(i) === c, "Method failed.");
+            MethodFailedException.assert(this.getComponent(i) === c, "Method failed.");
         });
         this.assertClassInvariance();
     }
 
     public insert(i: number, c: string) {
         this.assertClassInvariance();
-        IllegalArgumentException.assertIsNotNullOrUndefined(i);
-        IllegalArgumentException.assertCondition(i >= 0 && i <= this.noComponents, "Illegal index!");
-        IllegalArgumentException.assertIsNotNullOrUndefined(c);
-        IllegalArgumentException.assertCondition(AbstractName.isComponentCorrectlyMasked(c, this.delimiter), "Component is not correctly masked!");
+        IllegalArgumentException.assert(i != null && i != undefined);
+        IllegalArgumentException.assert(i >= 0 && i <= this.noComponents, "Illegal index!");
+        IllegalArgumentException.assert(c != null && c != undefined);
+        IllegalArgumentException.assert(AbstractName.isComponentCorrectlyMasked(c, this.delimiter), "Component is not correctly masked!");
         this.tryMethodOrRestore(() => {
             let noComponents = this.noComponents;
             if (0 <= i && i < this.noComponents) {
@@ -106,29 +106,29 @@ export class StringName extends AbstractName {
             } else if (i === this.noComponents) {
                 this.append(c);
             }
-            MethodFailedException.assertCondition(this.noComponents === noComponents + 1, "Method failed");
-            MethodFailedException.assertCondition(this.getComponent(i) === c, "MethodFailed");
+            MethodFailedException.assert(this.noComponents === noComponents + 1, "Method failed");
+            MethodFailedException.assert(this.getComponent(i) === c, "MethodFailed");
         });
         this.assertClassInvariance();
     }
 
     public append(c: string) {
         this.assertClassInvariance();
-        IllegalArgumentException.assertIsNotNullOrUndefined(c);
-        IllegalArgumentException.assertCondition(AbstractName.isComponentCorrectlyMasked(c, this.delimiter), "Component is not correctly masked!");
+        IllegalArgumentException.assert(c != null && c != undefined);
+        IllegalArgumentException.assert(AbstractName.isComponentCorrectlyMasked(c, this.delimiter), "Component is not correctly masked!");
         this.tryMethodOrRestore(() => {
             let oldLen : number = this.name.length;
             this.name += this.delimiter + c;
             this.noComponents += 1;
-            MethodFailedException.assertCondition(this.name.length === oldLen + c.length + 1, "Method failed")
+            MethodFailedException.assert(this.name.length === oldLen + c.length + 1, "Method failed")
         });
         this.assertClassInvariance();
     }
 
     public remove(i: number) {
         this.assertClassInvariance();
-        IllegalArgumentException.assertIsNotNullOrUndefined(i);
-        IllegalArgumentException.assertCondition(i >= 0 && i < this.noComponents, "Illegal index!");
+        IllegalArgumentException.assert(i != null && i != undefined);
+        IllegalArgumentException.assert(i >= 0 && i < this.noComponents, "Illegal index!");
         this.tryMethodOrRestore(() => {
             let components = this.splitAtNonControlCharacters(this.name, this.delimiter);
             let oldLen : number = this.name.length;
@@ -136,7 +136,7 @@ export class StringName extends AbstractName {
             components.splice(i, 1);
             this.name = components.join(this.delimiter);
             this.noComponents = components.length;
-            MethodFailedException.assertCondition(this.name.length <= oldLen - len && this.name.length >= oldLen - len - 1, "Method failed");
+            MethodFailedException.assert(this.name.length <= oldLen - len && this.name.length >= oldLen - len - 1, "Method failed");
         });
         this.assertClassInvariance();
     }
@@ -167,7 +167,7 @@ export class StringName extends AbstractName {
             let c = s.charAt(i);
             if (c === ESCAPE_CHARACTER) {
                 // Found escape character - next one must be either delimiter or escape character
-                InvalidStateException.assertCondition(i + 1 !== s.length, "Name is not correctly masked!");
+                InvalidStateException.assert(i + 1 !== s.length, "Name is not correctly masked!");
                 let c_next = s.charAt(i+1);
                 if (c_next === ESCAPE_CHARACTER || c_next === delimiter) {
                     i += 1; // Skip next iteration
@@ -195,8 +195,8 @@ export class StringName extends AbstractName {
         }
         let components : string[] = this.splitAtNonControlCharacters(this.name, this.delimiter);
         for (let c of components) {
-            InvalidStateException.assertCondition(AbstractName.isComponentCorrectlyMasked(c, this.delimiter), "Class invariant not met!");
+            InvalidStateException.assert(AbstractName.isComponentCorrectlyMasked(c, this.delimiter), "Class invariant not met!");
         }
-        InvalidStateException.assertCondition(components.length === this.noComponents, "Class invariant not met")
+        InvalidStateException.assert(components.length === this.noComponents, "Class invariant not met")
     }
 }

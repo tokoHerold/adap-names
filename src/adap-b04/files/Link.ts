@@ -19,7 +19,7 @@ export class Link extends Node {
     }
 
     public setTargetNode(target: Node): void {
-        IllegalArgumentException.assertIsNotNullOrUndefined(target, "Target must not be null or undefined!");
+        IllegalArgumentException.assert(target != null && target != undefined, "Target must not be null or undefined!");
         this.targetNode = target;
     }
 
@@ -29,14 +29,14 @@ export class Link extends Node {
     }
     
     public rename(bn: string): void {
-        IllegalArgumentException.assertIsNotNullOrUndefined(bn, "BaseName must not be null or undefined!");
-        IllegalArgumentException.assertCondition(bn !== "", "Basename must not be empty!");
+        IllegalArgumentException.assert(bn != null && bn != undefined, "BaseName must not be null or undefined!");
+        IllegalArgumentException.assert(bn !== "", "Basename must not be empty!");
         const target = this.ensureTargetNode(this.targetNode);
         target.rename(bn);
     }
 
     protected ensureTargetNode(target: Node | null): Node {
-        IllegalArgumentException.assertCondition(target !== null, "Target node was not set!");
+        IllegalArgumentException.assert(target !== null, "Target node was not set!");
         const result: Node = this.targetNode as Node;
         return result;
     }

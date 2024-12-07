@@ -9,13 +9,13 @@ export class StringArrayName extends AbstractName {
 
     protected components: string[] = [];
 
-    constructor(other: string[], delimiter?: string) {
-        IllegalArgumentException.assertIsNotNullOrUndefined(other);
+    constructor(other: string[], delimiter?: string) { 
+        IllegalArgumentException.assert(other != null && other != undefined);
         super(delimiter);
         // super must be called before this.isCorrectlyMasked can be called, otherwise typescript will not compile
-        IllegalArgumentException.assertCondition(this.isCorrectlyMasked(other), "Components are not correctly masked")
+        IllegalArgumentException.assert(this.isCorrectlyMasked(other), "Components are not correctly masked")
         other.forEach(e => this.components.push(e));
-        MethodFailedException.assertCondition(AbstractName.isCorrectlyMasked(this), "Method failed.");
+        MethodFailedException.assert(AbstractName.isCorrectlyMasked(this), "Method failed.");
         this.assertClassInvariance();
     }
 
@@ -66,60 +66,60 @@ export class StringArrayName extends AbstractName {
 
     public getComponent(i: number): string {
         this.assertClassInvariance();
-        IllegalArgumentException.assertIsNotNullOrUndefined(i);
-        IllegalArgumentException.assertCondition(i >= 0 && i < this.components.length, "Illegal index!");
+        IllegalArgumentException.assert(i != null && i != undefined);
+        IllegalArgumentException.assert(i >= 0 && i < this.components.length, "Illegal index!");
         return this.components[i];
     }
 
     public setComponent(i: number, c: string) {
         this.assertClassInvariance();
-        IllegalArgumentException.assertIsNotNullOrUndefined(i);
-        IllegalArgumentException.assertCondition(i >= 0 && i < this.components.length, "Illegal index!");
-        IllegalArgumentException.assertIsNotNullOrUndefined(c);
-        IllegalArgumentException.assertCondition(AbstractName.isComponentCorrectlyMasked(c, this.delimiter), "Component is not correctly masked!");
+        IllegalArgumentException.assert(i != null && i != undefined);
+        IllegalArgumentException.assert(i >= 0 && i < this.components.length, "Illegal index!");
+        IllegalArgumentException.assert(c != null && c != undefined);
+        IllegalArgumentException.assert(AbstractName.isComponentCorrectlyMasked(c, this.delimiter), "Component is not correctly masked!");
         this.tryMethod(() => {
             this.components[i] = c;
-            MethodFailedException.assertCondition(this.components[i] === c, "Method failed");
+            MethodFailedException.assert(this.components[i] === c, "Method failed");
         })
         this.assertClassInvariance();
     }
 
     public insert(i: number, c: string) {
         this.assertClassInvariance();
-        IllegalArgumentException.assertIsNotNullOrUndefined(i);
-        IllegalArgumentException.assertCondition(i >= 0 && i <= this.components.length, "Illegal index!");
-        IllegalArgumentException.assertIsNotNullOrUndefined(c);
-        IllegalArgumentException.assertCondition(AbstractName.isComponentCorrectlyMasked(c, this.delimiter), "Component is not correctly masked!");
+        IllegalArgumentException.assert(i != null && i != undefined);
+        IllegalArgumentException.assert(i >= 0 && i <= this.components.length, "Illegal index!");
+        IllegalArgumentException.assert(c != null && c != undefined);
+        IllegalArgumentException.assert(AbstractName.isComponentCorrectlyMasked(c, this.delimiter), "Component is not correctly masked!");
 
         this.tryMethod(() => {
             if (i >= 0 && i < this.components.length)
                 this.components.splice(i, 0, c);
             else if (i === this.components.length)
                 this.append(c);
-            MethodFailedException.assertCondition(this.components[i] === c, "Method failed.");
+            MethodFailedException.assert(this.components[i] === c, "Method failed.");
         });
         this.assertClassInvariance();
     }
 
     public append(c: string) {
         this.assertClassInvariance();
-        IllegalArgumentException.assertIsNotNullOrUndefined(c);
-        IllegalArgumentException.assertCondition(AbstractName.isComponentCorrectlyMasked(c, this.delimiter), "Component is not correctly masked!");
+        IllegalArgumentException.assert(c != null && c != undefined);
+        IllegalArgumentException.assert(AbstractName.isComponentCorrectlyMasked(c, this.delimiter), "Component is not correctly masked!");
         this.tryMethod(() => {
             this.components.push(c);
-            MethodFailedException.assertCondition(this.components[this.components.length - 1] === c, "Method failed.");  
+            MethodFailedException.assert(this.components[this.components.length - 1] === c, "Method failed.");  
         })
         this.assertClassInvariance();
     }
 
     public remove(i: number) {
         this.assertClassInvariance();
-        IllegalArgumentException.assertIsNotNullOrUndefined(i);
-        IllegalArgumentException.assertCondition(i >= 0 && i < this.components.length, "Illegal index!");
+        IllegalArgumentException.assert(i != null && i != undefined);;
+        IllegalArgumentException.assert(i >= 0 && i < this.components.length, "Illegal index!");
         this.tryMethod(() => {
             let count : number = this.components.length;
             this.components.splice(i, 1);
-            MethodFailedException.assertCondition(this.components.length === count - 1, "Method failed");
+            MethodFailedException.assert(this.components.length === count - 1, "Method failed");
         })
         this.assertClassInvariance();
     }
@@ -160,7 +160,7 @@ export class StringArrayName extends AbstractName {
             if (e instanceof IllegalArgumentException) throw new InvalidStateException("Class invariant not met!");
             throw e;
         }
-        InvalidStateException.assertCondition(this.isCorrectlyMasked(), "Class invariant not met!");
+        InvalidStateException.assert(this.isCorrectlyMasked(), "Class invariant not met!");
     }
 
 

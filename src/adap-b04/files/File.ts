@@ -17,7 +17,7 @@ export class File extends Node {
     }
 
     public open(): void {
-        IllegalArgumentException.assertCondition(this.doGetFileState() === FileState.CLOSED, "Can only open closed files!");
+        IllegalArgumentException.assert(this.doGetFileState() === FileState.CLOSED, "Can only open closed files!");
         // do something
     }
 
@@ -27,7 +27,7 @@ export class File extends Node {
     }
 
     public close(): void {
-        IllegalArgumentException.assertCondition(this.doGetFileState() === FileState.OPEN, "Can only close open files!");
+        IllegalArgumentException.assert(this.doGetFileState() === FileState.OPEN, "Can only close open files!");
         // do something
     }
 

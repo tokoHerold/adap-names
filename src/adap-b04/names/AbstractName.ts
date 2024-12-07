@@ -10,7 +10,7 @@ export abstract class AbstractName implements Name {
 
     constructor(delimiter: string = DEFAULT_DELIMITER) {
         if (delimiter !== undefined) {
-            IllegalArgumentException.assertIsNotNullOrUndefined(delimiter);
+            IllegalArgumentException.assert(delimiter != null && delimiter != undefined);
             this.assertValidDelimiter(delimiter);
             this.delimiter = delimiter;
         }
@@ -21,7 +21,7 @@ export abstract class AbstractName implements Name {
     }
 
     public asString(delimiter: string = this.delimiter): string {
-        IllegalArgumentException.assertIsNotNullOrUndefined(delimiter);
+        IllegalArgumentException.assert(delimiter != null && delimiter != undefined);
         this.assertValidDelimiter(delimiter);
         let result : string = this.getComponents()
             .map(c => c.replaceAll(ESCAPE_CHARACTER + ESCAPE_CHARACTER, ESCAPE_CHARACTER))
@@ -29,7 +29,7 @@ export abstract class AbstractName implements Name {
             .join(delimiter);
         
         if (this.getNoComponents() > 1) 
-            MethodFailedException.assertCondition(result !== "", "Method failed.");
+            MethodFailedException.assert(result !== "", "Method failed.");
         return result;
     }
 
@@ -50,8 +50,8 @@ export abstract class AbstractName implements Name {
     }
 
     public isEqual(other: Name): boolean {
-        IllegalArgumentException.assertIsNotNullOrUndefined(other);
-        IllegalArgumentException.assertCondition(AbstractName.isCorrectlyMasked(other), "Name is not correctly masked")
+        IllegalArgumentException.assert(other != null && other != undefined);
+        IllegalArgumentException.assert(AbstractName.isCorrectlyMasked(other), "Name is not correctly masked")
         if (this === other) return true;
         if (this.getDelimiterCharacter() !== other.getDelimiterCharacter()) return false;
         let noComponents = this.getNoComponents();
@@ -78,16 +78,16 @@ export abstract class AbstractName implements Name {
     public isEmpty(): boolean {
         let result : boolean = this.getNoComponents() === 0;
         if (result === true) {
-            MethodFailedException.assertCondition(this.asDataString() === "", "Method failed.");
+            MethodFailedException.assert(this.asDataString() === "", "Method failed.");
         } else {
-            MethodFailedException.assertCondition(this.asDataString().length > 0, "Method failed.");
+            MethodFailedException.assert(this.asDataString().length > 0, "Method failed.");
         }
         return result;
     }
 
     public getDelimiterCharacter(): string {
         let delimiter = this.delimiter;
-        MethodFailedException.assertCondition(delimiter == this.delimiter, "Method failed");
+        MethodFailedException.assert(delimiter == this.delimiter, "Method failed");
         return delimiter;
     }
 
@@ -101,15 +101,15 @@ export abstract class AbstractName implements Name {
     abstract remove(i: number): void;
 
     public concat(other: Name): void {
-        IllegalArgumentException.assertIsNotNullOrUndefined(other);
-        IllegalArgumentException.assertCondition(other.getDelimiterCharacter() == this.delimiter, "Delimiters did not match!");
-        IllegalArgumentException.assertCondition(AbstractName.isCorrectlyMasked(other), "Passed name is not valid!");
+        IllegalArgumentException.assert(other != null && other != undefined);
+        IllegalArgumentException.assert(other.getDelimiterCharacter() == this.delimiter, "Delimiters did not match!");
+        IllegalArgumentException.assert(AbstractName.isCorrectlyMasked(other), "Passed name is not valid!");
         let noComponents = this.getNoComponents() + other.getNoComponents();
 
         for (let i = 0; i < other.getNoComponents(); i++) {
             this.append(other.getComponent(i));
         }
-        MethodFailedException.assertCondition(this.getNoComponents() === noComponents, "Method failed.");
+        MethodFailedException.assert(this.getNoComponents() === noComponents, "Method failed.");
     }
     
     protected getComponents() : string[] {
@@ -128,9 +128,9 @@ export abstract class AbstractName implements Name {
     }
 
     protected assertValidDelimiter(c : string) {
-        IllegalArgumentException.assertCondition(typeof c === "string", "Delimiter must be a string");
-        IllegalArgumentException.assertCondition(c.length === 1, "Delimiter must be exactly one character");
-        IllegalArgumentException.assertCondition(c !== ESCAPE_CHARACTER, "Delimiter cannot be the escape character!");
+        IllegalArgumentException.assert(typeof c === "string", "Delimiter must be a string");
+        IllegalArgumentException.assert(c.length === 1, "Delimiter must be exactly one character");
+        IllegalArgumentException.assert(c !== ESCAPE_CHARACTER, "Delimiter cannot be the escape character!");
     }
 
     protected static isComponentCorrectlyMasked(component : string, delimiter : string) : boolean {
@@ -164,7 +164,7 @@ export abstract class AbstractName implements Name {
     protected assertDataSting(s : string) : void {
         try {
             let name = new StringName(s, DEFAULT_DELIMITER);
-            MethodFailedException.assertCondition(name.getNoComponents() === this.getNoComponents(), "Data String corrupt");
+            MethodFailedException.assert(name.getNoComponents() === this.getNoComponents(), "Data String corrupt");
         } catch {
             throw new MethodFailedException("Data String corrupt");
         }

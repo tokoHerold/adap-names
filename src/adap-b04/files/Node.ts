@@ -17,11 +17,11 @@ export class Node {
 
     protected initialize(pn: Directory): void {
         this.parentNode = pn;
-        this.parentNode.addChildNode(this);
+        this.parentNode.add(this);
     }
 
     public move(to: Directory): void {
-        IllegalArgumentException.assertIsNotNullOrUndefined(to, "Directory must not be null or undefined!");
+        IllegalArgumentException.assert(to != null && to != undefined, "Directory must not be null or undefined!");
         this.parentNode.remove(this);
         to.add(this);
         this.parentNode = to;
@@ -42,8 +42,8 @@ export class Node {
     }
 
     public rename(bn: string): void {
-        IllegalArgumentException.assertIsNotNullOrUndefined(bn, "Basename must not be null or undefined!")   
-        IllegalArgumentException.assertCondition(bn !== "", "Base name must not be empty!");
+        IllegalArgumentException.assert(bn != null &&  bn != undefined, "Basename must not be null or undefined!")   
+        IllegalArgumentException.assert(bn !== "", "Base name must not be empty!");
         this.doSetBaseName(bn);
     }
 

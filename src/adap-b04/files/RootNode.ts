@@ -24,7 +24,7 @@ export class RootNode extends Directory {
     }
 
     public move(to: Directory): void {
-        IllegalArgumentException.assertCondition(false, "Root node must not be moved!");
+        IllegalArgumentException.assert(false, "Root node must not be moved!");
         // null operation
     }
 
