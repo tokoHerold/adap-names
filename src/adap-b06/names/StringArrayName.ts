@@ -5,24 +5,27 @@ import { InvalidStateException } from "../common/InvalidStateException";
 import { IllegalArgumentException } from "../common/IllegalArgumentException";
 
 export class StringArrayName extends AbstractName {
-
+ 
     protected components: string[] = [];
 
     constructor(other: string[], delimiter?: string) {
         super(delimiter);
         IllegalArgumentException.assert(this.isValidlyMasked(other));
-
+        
         let components : string[] = [];
-        other.forEach(e => components.push(e));
+        other.forEach(e => {
+            components.push(this.deepCopy(e));
+        });
+        
         this.doSetComponents(components)
         
         this.assertClassInvariance();
     }
-
+    
     protected doGetNoComponents(): number {
         return this.doGetComponents().length;
     }
-
+    
     protected doGetComponent(i : number) : string {
         return this.doGetComponents()[i];
     }
@@ -31,37 +34,37 @@ export class StringArrayName extends AbstractName {
         let components : string[] = this.doGetComponents();
         components[i] = c;
         this.doSetComponents(components);
-   } 
-
+    } 
+    
     protected doInsert(i : number, c : string) {
         if (i >= 0 && i < this.components.length)
             this.components.splice(i, 0, c);
         else if (i === this.components.length)
-            this.append(c);
+            this.doAppend(c);
     } 
-
-
+    
+    
     protected doAppend(c: string) {
         let components : string[] = this.doGetComponents();
         components.push(c);
         this.doSetComponents(components);
     } 
-
-
+    
+    
     protected doRemove(i: number) {
         let components : string[] = this.doGetComponents();
         components.splice(i, 1);
         this.doSetComponents(components);
     } 
-
+    
     protected doGetComponents() : string[] {
         return this.components;
     }
-
+    
     protected doSetComponents(components : string[]) : void {
         this.components = components;
     }
-
+    
     protected isValidlyMasked(components : string[] = this.doGetComponents()) : boolean {
         for (let c of components) {
             if (c === null || c === undefined) return false;
@@ -70,8 +73,9 @@ export class StringArrayName extends AbstractName {
         }
         return true;
     }
-
-    protected assertClassInvariance(): void {
+    
+    protected assertClassInvariance(before? : AbstractName): void {
+        super.assertClassInvariance(before);
         try {
             this.assertValidDelimiter(this.delimiter);
         } catch (e) {
@@ -80,16 +84,6 @@ export class StringArrayName extends AbstractName {
         InvalidStateException.assert(this.components != null && this.components != undefined);
         this.doGetComponents().forEach(
             c => InvalidStateException.assert(this.isComponentCorrectlyMasked(c))
-            );
-    }
-
-    protected tryMethodOrRollback(f : Function) : void {
-        let copy : StringArrayName = this.deepCopy() as StringArrayName;
-        try {
-           f();
-        } catch (e) {
-            this.doSetComponents(copy.doGetComponents()); // Restore state
-            throw e;
-        }
+        );
     }
 }

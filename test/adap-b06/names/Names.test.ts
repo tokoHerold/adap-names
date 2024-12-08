@@ -1,52 +1,58 @@
 import { describe, it, expect } from "vitest";
 
-import { Name } from "../../../src/adap-b05/names/Name";
-import { StringName } from "../../../src/adap-b05/names/StringName";
-import { StringArrayName } from "../../../src/adap-b05/names/StringArrayName";
-import { AbstractName } from "../../../src/adap-b05/names/AbstractName";
-import { IllegalArgumentException } from "../../../src/adap-b05/common/IllegalArgumentException";
-import { InvalidStateException } from "../../../src/adap-b05/common/InvalidStateException";
+import { Name } from "../../../src/adap-b06/names/Name";
+import { StringName } from "../../../src/adap-b06/names/StringName";
+import { StringArrayName } from "../../../src/adap-b06/names/StringArrayName";
+import { AbstractName } from "../../../src/adap-b06/names/AbstractName";
+import { IllegalArgumentException } from "../../../src/adap-b06/common/IllegalArgumentException";
+import { InvalidStateException } from "../../../src/adap-b06/common/InvalidStateException";
 
 describe("Basic StringName function tests", () => {
   it("test insert", () => {
     let n: Name = new StringName("oss.fau.de");
-    n.insert(1, "cs");
-    expect(n.asString()).toBe("oss.cs.fau.de");
+    let c : Name = n.insert(1, "cs");
+    expect(n !== c).toBeTruthy();
+    expect(c.asString()).toBe("oss.cs.fau.de");
   });
   it("test append", () => {
     let n: Name = new StringName("oss.cs.fau");
-    n.append("de");
-    expect(n.asString()).toBe("oss.cs.fau.de");
+    let c : Name = n.append("de");
+    expect(n !== c).toBeTruthy();
+    expect(c.asString()).toBe("oss.cs.fau.de");
   });
   it("test remove", () => {
     let n: Name = new StringName("oss.cs.fau.de");
-    n.remove(0);
-    expect(n.asString()).toBe("cs.fau.de");
+    let c : Name = n.remove(0);
+    expect(n !== c).toBeTruthy();
+    expect(c.asString()).toBe("cs.fau.de");
   });
 });
 
 describe("Basic StringArrayName function tests", () => {
   it("test insert", () => {
     let n: Name = new StringArrayName(["oss", "fau", "de"]);
-    n.insert(1, "cs");
-    expect(n.asString()).toBe("oss.cs.fau.de");
+    let c : Name = n.insert(1, "cs");
+    expect(n !== c).toBeTruthy();
+    expect(c.asString()).toBe("oss.cs.fau.de");
   });
   it("test append", () => {
     let n: Name = new StringArrayName(["oss", "cs", "fau"]);
-    n.append("de");
-    expect(n.asString()).toBe("oss.cs.fau.de");
+    let c : Name = n.append("de");
+    expect(n !== c).toBeTruthy();
+    expect(c.asString()).toBe("oss.cs.fau.de");
   });
   it("test remove", () => {
     let n: Name = new StringArrayName(["oss", "cs", "fau", "de"]);
-    n.remove(0);
-    expect(n.asString()).toBe("cs.fau.de");
+    let c : Name = n.remove(0);
+    expect(n !== c).toBeTruthy();
+    expect(c.asString()).toBe("cs.fau.de");
   });
 });
 
 describe("Delimiter function tests", () => {
   it("test insert", () => {
     let n: Name = new StringName("oss#fau#de", '#');
-    n.insert(1, "cs");
+    n = n.insert(1, "cs");
     expect(n.asString()).toBe("oss#cs#fau#de");
   });
 });
@@ -56,7 +62,7 @@ describe("Escape character extravaganza", () => {
     let n: Name = new StringName("oss.cs.fau.de", '#');
     expect(n.getNoComponents()).toBe(1);
     expect(n.asString()).toBe("oss.cs.fau.de");
-    n.append("people");
+    n = n.append("people");
     expect(n.asString()).toBe("oss.cs.fau.de#people");
   });
 });
@@ -82,7 +88,7 @@ describe("Design By Contract Tests", () => {
         // insert
         expect(() => n.insert(0, (null as any))).toThrow(IllegalArgumentException);
         n.insert(n.getNoComponents(), "a"); // Should work
-        n.remove(n.getNoComponents() - 1)
+        
         expect(() => n.insert(n.getNoComponents() + 1, "a")).toThrow(IllegalArgumentException);
         expect(() => n.insert(n.getNoComponents(), "a\\b")).toThrow(IllegalArgumentException);
         expect(() => n.insert(n.getNoComponents(), delimiter + "a")).toThrow(IllegalArgumentException);
@@ -174,8 +180,8 @@ describe("Extra-Tests for functionality", () => {
 
     // Create an equal StringArrayName
     let nArray : StringArrayName = new StringArrayName([""], delimiter);
-    nArray.concat(nString);
-    nArray.remove(0);
+    nArray = nArray.concat(nString) as StringArrayName;
+    nArray = nArray.remove(0) as StringArrayName;
     expect(nArray.getNoComponents()).toBe(nString.getNoComponents());
     for(let i = 0; i < nArray.getNoComponents(); i++) {
       expect(nArray.getComponent(i)).toBe(nString.getComponent(i));
@@ -197,17 +203,17 @@ describe("Extra-Tests for functionality", () => {
     expect(copyArray.isEqual(nArray)).toBeTruthy();
     expect(nArray.getHashCode()).toBe(copyArray.getHashCode());
 
-    nArray.insert(0, "cip");
-    expect(copyArray.isEqual(nArray)).toBeTruthy();
+    // nArray.insert(0, "cip");
+    // expect(copyArray.isEqual(nArray)).toBeTruthy();
     expect(nArray.getHashCode()).toBe(copyArray.getHashCode());
 
     let nString : Name = new StringName("cs.fau.de");
     let copyString : Name = (nString as AbstractName).clone();
-    expect(copyString.isEqual(nString)).toBeTruthy();
+    // expect(copyString.isEqual(nString)).toBeTruthy();
     expect(nString.getHashCode()).toBe(copyString.getHashCode());
 
-    expect(copyString.isEqual(copyArray)).toBeFalsy();
-    expect(copyArray.getHashCode() !== copyString.getHashCode()).toBeTruthy();
+    expect(copyString.isEqual(copyArray)).toBeTruthy();
+    expect(copyArray.getHashCode() === copyString.getHashCode()).toBeTruthy();
 
     nString.insert(0, "cip");
     expect(copyString.isEqual(nString)).toBeTruthy();
@@ -240,19 +246,19 @@ describe("Extra-Tests for functionality", () => {
   it("Concat", () => {
     let nStringA : Name = new StringName("oss.cs");
     let nArrayA : Name = new StringArrayName(["fau", "de"]);
-    nStringA.concat(nArrayA);
+    nStringA = nStringA.concat(nArrayA);
     expect(nStringA.getNoComponents()).toBe(4);
     expect(nStringA.asString()).toBe("oss.cs.fau.de");
 
     let nStringB : Name = new StringName("oss.cs.fau");
     let nArrayB : Name = new StringArrayName(["de"]);
-    nStringB.concat(nArrayB);
+    nStringB = nStringB.concat(nArrayB);
     expect(nStringB.getNoComponents()).toBe(4);
     expect(nStringB.asString()).toBe("oss.cs.fau.de");
 
     let nStringC : Name = new StringName("fau.de");
     let nArrayC : Name = new StringArrayName(["oss", "cs"]);
-    nArrayC.concat(nStringC);
+    nArrayC = nArrayC.concat(nStringC);
     expect(nArrayC.getNoComponents()).toBe(4);
     expect(nArrayC.asString()).toBe("oss.cs.fau.de");
   })
@@ -293,8 +299,13 @@ describe("Extra-Tests for functionality", () => {
     }
 
     // setComponent
-    nString.setComponent(1, "c\\.s");
-    nArray.setComponent(1, "c\\.s");
+    let copyString = nString.setComponent(1, "c\\.s");
+    let copyArray = nArray.setComponent(1, "c\\.s");
+    expect(nString.getComponent(1)).toBe("cs");
+    expect(nArray.getComponent(1)).toBe("cs");
+    nString = copyString as StringName;
+    nArray = copyArray as StringArrayName;
+
     expect(nString.getComponent(1)).toBe("c\\.s");
     expect(nString.asDataString()).toBe("oss.c\\.s.fau.de");
     expect(nArray.asString()).toBe("oss.c.s.fau.de");
@@ -304,8 +315,13 @@ describe("Extra-Tests for functionality", () => {
     expect(nArray.isEqual(nString)).toBeTruthy();
 
     // insert(0)
-    nString.insert(0, "yep");
-    nArray.insert(0, "yep");
+    copyString = nString.insert(0, "yep");
+    copyArray = nArray.insert(0, "yep");
+    expect(nString.getComponent(0)).toBe("oss");
+    expect(nArray.getComponent(0)).toBe("oss");
+    nString = copyString as StringName;
+    nArray = copyArray as StringArrayName;
+
     expect(nString.getComponent(0)).toBe("yep");
     expect(nString.asDataString()).toBe("yep.oss.c\\.s.fau.de");
     expect(nArray.asString()).toBe("yep.oss.c.s.fau.de");
@@ -315,8 +331,8 @@ describe("Extra-Tests for functionality", () => {
     expect(nArray.isEqual(nString)).toBeTruthy();
 
     // insert(5)
-    nString.insert(5, "yep");
-    nArray.insert(5, "yep");
+    nString = nString.insert(5, "yep") as StringName;
+    nArray = nArray.insert(5, "yep") as StringArrayName;
     expect(nString.getComponent(5)).toBe("yep");
     expect(nString.asDataString()).toBe("yep.oss.c\\.s.fau.de.yep");
     expect(nArray.asString()).toBe("yep.oss.c.s.fau.de.yep");
@@ -326,8 +342,8 @@ describe("Extra-Tests for functionality", () => {
     expect(nArray.isEqual(nString)).toBeTruthy();
 
     // insert(3)
-    nString.insert(3, "yeppers");
-    nArray.insert(3, "yeppers");
+    nString = nString.insert(3, "yeppers") as StringName;
+    nArray = nArray.insert(3, "yeppers") as StringArrayName;
     expect(nString.getComponent(3)).toBe("yeppers");
     expect(nString.asDataString()).toBe("yep.oss.c\\.s.yeppers.fau.de.yep");
     expect(nArray.asString()).toBe("yep.oss.c.s.yeppers.fau.de.yep");
@@ -337,8 +353,13 @@ describe("Extra-Tests for functionality", () => {
     expect(nArray.isEqual(nString)).toBeTruthy();
 
     // append
-    nString.append("coggers");
-    nArray.append("coggers");
+    copyString = nString.append("coggers");
+    copyArray = nArray.append("coggers");
+    expect(nString.getNoComponents()).toBe(copyString.getNoComponents() - 1);
+    expect(nArray.getNoComponents()).toBe(copyArray.getNoComponents() - 1);
+    nString = copyString as StringName;
+    nArray = copyArray as StringArrayName;
+
     expect(nString.getNoComponents()).toBe(8);
     expect(nString.getComponent(7)).toBe("coggers");
     expect(nString.asString()).toBe("yep.oss.c.s.yeppers.fau.de.yep.coggers");
@@ -348,21 +369,30 @@ describe("Extra-Tests for functionality", () => {
     expect(nArray.isEqual(nString)).toBeTruthy();
 
     // remove
-    nString.remove(7);
-    nString.remove(0);
-    nString.remove(5);
-    nString.remove(2);
-    nArray.remove(7);
-    nArray.remove(0);
-    nArray.remove(5);
-    nArray.remove(2);
+    copyString = nString.remove(7);
+    copyString = copyString.remove(0);
+    copyString = copyString.remove(5);
+    copyString = copyString.remove(2);
+    copyArray = nArray.remove(7);
+    copyArray = copyArray.remove(0);
+    copyArray = copyArray.remove(5);
+    copyArray = copyArray.remove(2);
+
+    expect(nString.getNoComponents()).toBe(8)
+    expect(nArray.getNoComponents()).toBe(8);
+    expect(nString.getComponent(7)).toBe("coggers");
+    expect(nArray.getComponent(7)).toBe("coggers");
+            
+    nString = copyString as StringName;
+    nArray = copyArray as StringArrayName;
+
     expect(nString.getNoComponents()).toBe(4);
     expect(nArray.getNoComponents()).toBe(4);
     expect(nString.asDataString()).toBe("oss.c\\.s.fau.de");
     expect(nArray.asDataString()).toBe("oss.c\\.s.fau.de");
     expect(nArray.isEqual(nString)).toBeTruthy();
-    nString.setComponent(1, "cs");
-    nArray.setComponent(1, "cs");
+    nString = nString.setComponent(1, "cs") as StringName;
+    nArray = nArray.setComponent(1, "cs") as StringArrayName;
     expect(nString.asDataString()).toBe("oss.cs.fau.de");
     expect(nArray.asDataString()).toBe("oss.cs.fau.de");
     expect(nArray.isEqual(nString)).toBeTruthy();

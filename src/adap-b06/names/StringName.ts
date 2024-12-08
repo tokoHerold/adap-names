@@ -40,7 +40,7 @@ export class StringName extends AbstractName {
 
     protected doInsert(i: number, c: string) {
         if (i === this.doGetNoComponents()) {
-            this.append(c);
+            this.doAppend(c);
         } else {
             let components : string[] = this.splitAtNonControlCharacters(this.doGetName(), this.doGetDelimiter());
             components.splice(i, 0, c);
@@ -73,17 +73,6 @@ export class StringName extends AbstractName {
         this.noComponents = noComponents;
     }
     
-    protected tryMethodOrRollback(f : Function) : void {
-        let copy : StringName = this.deepCopy() as StringName;
-        try {
-           f(); 
-        } catch (e) {
-            this.doSetName(copy.doGetName()); // Restore state
-            this.doSetNoComponents(copy.doGetNoComponents());
-            throw e;
-        }
-    }
-    
     protected splitAtNonControlCharacters(s : string, delimiter : string) : string[] {
         let result : string[] = [];
         let lastSplitIndex = 0;
@@ -110,7 +99,8 @@ export class StringName extends AbstractName {
         return result;
     }
 
-    protected assertClassInvariance(): void {
+    protected assertClassInvariance(before? : AbstractName): void {
+        super.assertClassInvariance(before);
         try {
             this.assertValidDelimiter(this.delimiter);
         } catch (e) {

@@ -3,6 +3,7 @@ import { MethodFailedException } from "../common/MethodFailedException";
 import { DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "../common/Printable";
 import { Name } from "./Name";
 import { StringName } from "./StringName";
+import { InvalidStateException } from "../common/InvalidStateException";
 
 export abstract class AbstractName implements Name {
 
@@ -13,21 +14,22 @@ export abstract class AbstractName implements Name {
         this.doSetDelimiter(delimiter);
     }
 
+    // May remain shallow, since object is immutable
     public clone(): Name {
         let copy = Object.create(this);
 
         this.assertClassInvariance();
         MethodFailedException.assert(this.isEqual(copy));
-
         return copy;
     }
 
+    // Does not change state
     public asString(delimiter: string = this.delimiter): string {
         this.assertValidDelimiter(delimiter);
         let result : string = this.getComponents()
             .map(c => c.replaceAll(ESCAPE_CHARACTER + ESCAPE_CHARACTER, ESCAPE_CHARACTER))
             .map(c => c.replaceAll(ESCAPE_CHARACTER + this.doGetDelimiter(), this.doGetDelimiter()))
-            .join(delimiter);
+            .join(delimiter); // Returns a new string object
         
         this.assertClassInvariance();
         if (this.getNoComponents() > 1) 
@@ -36,16 +38,18 @@ export abstract class AbstractName implements Name {
         return result;
     }
 
+    // Does not change state
     public toString(): string {
         return this.asDataString();
     }
 
+    // Does not change state
     public asDataString(): string {
         if (this.getDelimiterCharacter() !== DEFAULT_DELIMITER) {
             // Need to unmask control characters
             return this.getComponents()
                 .map(c => c.replaceAll(ESCAPE_CHARACTER + this.doGetDelimiter(), this.doGetDelimiter()))
-                .join(DEFAULT_DELIMITER);
+                .join(DEFAULT_DELIMITER); // returns a new string object
         }
         let result : string = this.getComponents().join(DEFAULT_DELIMITER);
 
@@ -55,20 +59,26 @@ export abstract class AbstractName implements Name {
         return result;
     }
 
+    // Does not change state
     public isEqual(other: Name): boolean {
         IllegalArgumentException.assert(other != null && other != undefined);
-        IllegalArgumentException.assert(this.isCorrectlyMasked(other), "Name is not correctly masked")
+
+        const otherDelimiter : string = other.getDelimiterCharacter();
+
         if (this === other) return true;
         if (this.getDelimiterCharacter() !== other.getDelimiterCharacter()) return false;
         let noComponents = this.getNoComponents();
         if (noComponents !== other.getNoComponents()) return false;
         for (let i = 0; i < noComponents; i++) {
-            if (this.getComponent(i) !== other.getComponent(i)) return false;
+            const otherComponent : string = other.getComponent(i);
+            IllegalArgumentException.assert(this.isComponentCorrectlyMasked(otherComponent, otherDelimiter), "Name is not correctly masked!");
+            if (this.getComponent(i) !== otherComponent) return false;
         }
         return true;
 
     }
 
+    // Deos not change state
      public getHashCode(): number {
         let hashCode : number = this.doGetDelimiter().charCodeAt(0);
         const components: string[] = this.getComponents();
@@ -82,6 +92,7 @@ export abstract class AbstractName implements Name {
         return hashCode;
     }
 
+    // Does not change state
     public isEmpty(): boolean {
         let result : boolean = this.getNoComponents() === 0;
         this.assertClassInvariance();
@@ -96,8 +107,9 @@ export abstract class AbstractName implements Name {
         return result;
     }
 
+    // Does not change state
     public getDelimiterCharacter(): string {
-        let delimiter = this.doGetDelimiter();
+        let delimiter = this.deepCopy<string>(this.doGetDelimiter());
         this.assertClassInvariance();
         MethodFailedException.assert(delimiter == this.doGetDelimiter(), "Method failed");
         try {
@@ -108,14 +120,16 @@ export abstract class AbstractName implements Name {
         return delimiter;
     }
 
+    // Does not change state
     public getNoComponents(): number {
-        return this.doGetNoComponents();   
+        this.assertClassInvariance(); 
+        return this.doGetNoComponents(); // a number is call-by-value
     }
 
     public getComponent(i: number): string {
         this.assertValidIndex(i);
 
-        let component : string = this.doGetComponent(i);
+        let component : string = this.deepCopy<string>(this.doGetComponent(i));
 
         this.assertClassInvariance();
 
@@ -123,56 +137,84 @@ export abstract class AbstractName implements Name {
         return component;
     } 
 
-    public setComponent(i: number, c: string) {
+    public setComponent(i: number, c: string) : Name {
         this.assertValidIndex(i);
         this.assertisProperlyMasked(c);
 
-        this.tryMethodOrRollback( () => {
-            this.doSetComponent(i, c);
+        const result = this.deepCopy(this);
+        const before = this.deepCopy(this);
+        result.doSetComponent(i, c);
             
-            this.assertClassInvariance();
-            MethodFailedException.assert(this.getComponent(i) === c);
-        })
+        this.assertClassInvariance(before); // assert this object did not change
+        result.assertClassInvariance(); // assert other object's class invariants
+        MethodFailedException.assert(result.getComponent(i) === c);
+        return result;
     }
     
-    public insert(i: number, c: string) {
+    public insert(i: number, c: string) : Name {
         this.assertValidIndex(i, true);
         this.assertisProperlyMasked(c);
 
-        this.tryMethodOrRollback(() => {
-            const oldNo : number = this.getNoComponents();
-            this.doInsert(i, c);
-            
-            this.assertClassInvariance();
-            MethodFailedException.assert(this.getNoComponents() === oldNo + 1);
-        });
+        const oldNo : number = this.getNoComponents();
+        const result = this.deepCopy(this);
+        const before = this.deepCopy(this);
+        result.doInsert(i, c);
+        
+        this.assertClassInvariance(before);
+        result.assertClassInvariance(); // assert other object's class invariants
+        MethodFailedException.assert(result.getNoComponents() === oldNo + 1);
+        return result;
     }
 
-    public append(c: string) {
+    public append(c: string): Name {
         this.assertisProperlyMasked(c);
 
-        this.tryMethodOrRollback(() => {
-            const oldNo : number = this.getNoComponents();
-            this.doAppend(c);
+        const oldNo: number = this.getNoComponents();
+        const result = this.deepCopy(this);
+        const before = this.deepCopy(this);
 
-            this.assertClassInvariance();
-            MethodFailedException.assert(this.getNoComponents() === oldNo + 1);
-        });
+        result.doAppend(c);
+
+        this.assertClassInvariance(before);
+        result.assertClassInvariance(); // assert other object's class invariants
+        MethodFailedException.assert(result.getNoComponents() === oldNo + 1);
+        return result;
     }
 
-    public remove(i: number) {
+    public remove(i: number): Name {
         this.assertValidIndex(i);
 
-        this.tryMethodOrRollback(() => {
-            const oldNo : number = this.getNoComponents();
+        const oldNo: number = this.getNoComponents();
+        const result = this.deepCopy(this);
+        const before = this.deepCopy(this);
 
-            this.doRemove(i);
+        result.doRemove(i);
 
-            this.assertClassInvariance();
-            MethodFailedException.assert(this.getNoComponents() === oldNo - 1);
-        });
+        this.assertClassInvariance(before);
+        result.assertClassInvariance(); // assert other object's class invariants
+        MethodFailedException.assert(result.getNoComponents() === oldNo - 1);
+        return result;
     }
 
+    public concat(other: Name): Name {
+        IllegalArgumentException.assert(other != null && other != undefined);
+        IllegalArgumentException.assert(other.getDelimiterCharacter() == this.doGetDelimiter(), "Delimiters did not match!");
+        
+        let expectedNoComponents = this.getNoComponents() + other.getNoComponents();
+        const result = this.deepCopy(this);
+        const before = this.deepCopy(this);
+
+        for (let i = 0; i < other.getNoComponents(); i++) {
+            const otherComponent = other.getComponent(i);
+            IllegalArgumentException.assert(this.isComponentCorrectlyMasked(otherComponent, other.getDelimiterCharacter()), "Passed name is not valid!");
+            result.doAppend(other.getComponent(i));
+        }
+
+        this.assertClassInvariance(before);
+        result.assertClassInvariance();
+        MethodFailedException.assert(result.getNoComponents() === expectedNoComponents, "Method failed.");
+        return result;
+    }
 
     protected abstract doGetNoComponents(): number;
 
@@ -183,18 +225,6 @@ export abstract class AbstractName implements Name {
     protected abstract doAppend(c: string): void;
     protected abstract doRemove(i: number): void;
 
-    public concat(other: Name): void {
-        IllegalArgumentException.assert(other != null && other != undefined);
-        IllegalArgumentException.assert(other.getDelimiterCharacter() == this.doGetDelimiter(), "Delimiters did not match!");
-        IllegalArgumentException.assert(this.isCorrectlyMasked(other), "Passed name is not valid!");
-        let expectedNoComponents = this.getNoComponents() + other.getNoComponents();
-
-        for (let i = 0; i < other.getNoComponents(); i++) {
-            this.append(other.getComponent(i));
-        }
-        this.assertClassInvariance();
-        MethodFailedException.assert(this.getNoComponents() === expectedNoComponents, "Method failed.");
-    }
 
     protected doSetDelimiter(delimiter : string) {
         this.delimiter = delimiter;
@@ -241,13 +271,14 @@ export abstract class AbstractName implements Name {
         return components;
     }
 
-    protected deepCopy() : AbstractName {
-        let copy : Object = structuredClone(this);
-        Object.setPrototypeOf(copy, Object.getPrototypeOf(this));
-        return copy as AbstractName;
+    
+    protected deepCopy<T>(element : T) : T {
+        let copy : T = structuredClone(element);
+        Object.setPrototypeOf(copy, Object.getPrototypeOf(element));
+        return copy;
     }
-
-
+    
+    
     protected isComponentCorrectlyMasked(component : string, delimiter : string = this.doGetDelimiter()) : boolean {
         for (let i = 0; i < component.length; i++) {
             let c = component.charAt(i);
@@ -266,17 +297,19 @@ export abstract class AbstractName implements Name {
         }
         return true;
     }
-
-    protected isCorrectlyMasked(n : Name) : boolean {
-       for (let i = 0; i < n.getNoComponents(); i++) {
+    
+    protected isCorrectlyMasked(n : AbstractName) : boolean {
+        for (let i = 0; i < n.doGetNoComponents(); i++) {
             if (!this.isComponentCorrectlyMasked(n.getComponent(i), n.getDelimiterCharacter())) {
                 return false;
             }
-       } 
-       return true;
+        } 
+        return true;
     }
-
-    protected abstract tryMethodOrRollback(f : Function) : void;
-    protected abstract assertClassInvariance() : void;
-
+    
+    protected assertClassInvariance(before? : AbstractName) : void {
+        if (before != undefined) {
+            InvalidStateException.assert(this.isEqual(before));   
+        }
+    }
 }
